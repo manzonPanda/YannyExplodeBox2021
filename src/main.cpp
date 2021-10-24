@@ -24,18 +24,19 @@
 
 // Declare our NeoPixel strip object:
 Adafruit_NeoPixel strip(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800);
-// Argument 1 = Number of pixels in NeoPixel strip
-// Argument 2 = Arduino pin number (most are valid)
-// Argument 3 = Pixel type flags, add together as needed:
-//   NEO_KHZ800  800 KHz bitstream (most NeoPixel products w/WS2812 LEDs)
-//   NEO_KHZ400  400 KHz (classic 'v1' (not v2) FLORA pixels, WS2811 drivers)
-//   NEO_GRB     Pixels are wired for GRB bitstream (most NeoPixel products)
-//   NEO_RGB     Pixels are wired for RGB bitstream (v1 FLORA pixels, not v2)
-//   NEO_RGBW    Pixels are wired for RGBW bitstream (NeoPixel RGBW products)
 
+  void initialization(uint32_t color){
+    for(int i=0; i<strip.numPixels(); i++) {  
+      if(i=strip.numPixels()-1  ){
+        strip.setPixelColor(i, color);
+      }else{
+        strip.setPixelColor(i, color);
+      }
+        strip.show();
+      delay(500);                         
+    }
 
-// setup() function -- runs once at startup --------------------------------
-
+  }
 void setup() {
   // These lines are specifically to support the Adafruit Trinket 5V 16 MHz.
   // Any other board, you can remove this part (but no harm leaving it):
@@ -47,6 +48,7 @@ void setup() {
   strip.begin();           // INITIALIZE NeoPixel strip object (REQUIRED)
   strip.show();            // Turn OFF all pixels ASAP
   strip.setBrightness(10); // Set BRIGHTNESS to about 1/5 (max = 255)
+  initialization(strip.Color(255, 255, 255));
 }
 
 // Some functions of our own for creating animated effects -----------------
@@ -57,10 +59,10 @@ void setup() {
 // strip.Color(red, green, blue) as shown in the loop() function above),
 // and a delay time (in milliseconds) between pixels.
 void colorWipe(uint32_t color, int wait) {
-  for(int i=0; i<strip.numPixels(); i++) { // For each pixel in strip...
-    strip.setPixelColor(i, color);         //  Set pixel's color (in RAM)
-    strip.show();                          //  Update strip to match
-    delay(wait);                           //  Pause for a moment
+  for(int i=0; i<strip.numPixels(); i++) { 
+    strip.setPixelColor(i, color);        
+    strip.show();                         
+    delay(wait);                           
   }
 }
 
@@ -171,20 +173,15 @@ void fadeInOut(){
 
 }
   
-  void initialization(){
-    
-  for(int i=0; i<strip.numPixels(); i++) { // For each pixel in strip...
-    strip.setPixelColor(i, color);         //  Set pixel's color (in RAM)
-    strip.show();                          //  Update strip to match
-    delay(wait);                           //  Pause for a moment
-  }
 
-  }
 
 
   void loop() {
+
+
+
   // Fill along the length of the strip in various colors...
-  // colorWipe(strip.Color(255, 255, 255), 100); // Red
+  // colorWipe(strip.Color(255, 0, 0), 100); // Red
   // colorWipe(strip.Color(  0, 255,   0), 500); // Green
   // colorWipe(strip.Color(  0,   0, 255), 50); // Blue
 
