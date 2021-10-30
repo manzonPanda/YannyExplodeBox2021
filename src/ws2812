@@ -8,13 +8,17 @@
 // - When using a 3.3V microcontroller with a 5V-powered NeoPixel strip,
 //   a LOGIC-LEVEL CONVERTER on the data line is STRONGLY RECOMMENDED.
 // (Skipping these may work OK on your workbench but can fail in the field)
-
+#include <thread>
 #include <Adafruit_NeoPixel.h>
 #ifdef __AVR__
  #include <avr/power.h> // Required for 16 MHz Adafruit Trinket
 #endif
 
+// Which pin on the Arduino is connected to the NeoPixels?
+// On a Trinket or Gemma we suggest changing this to 1:
 #define LED_PIN    5
+
+// How many NeoPixels are attached to the Arduino?
 #define LED_COUNT 11
 
 // Declare our NeoPixel strip object:
@@ -24,48 +28,38 @@ Adafruit_NeoPixel strip(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800);
     strip.clear();
   uint32_t white = strip.Color(255, 255, 255);
   uint32_t yellow = strip.Color(255, 255, 0);
-  strip.setPixelColor(0, white);
-  strip.show();
-  delay(2000);
-
     for(int i=0; i<strip.numPixels(); i++) {  
       if( i== strip.numPixels()-1 ){
         strip.setPixelColor(i, yellow);
-        strip.show();
-        strip.setPixelColor(i-1, strip.Color(0, 0, 0));
-        strip.show();
       }else{
         strip.setPixelColor(i, white);
-        strip.show();
-        strip.setPixelColor(i-1, strip.Color(0, 0, 0));
-        strip.show();
       }
-      delay(200);                         
+        strip.show();
+      delay(500);                         
     }
-    delay(1500);
+
   }
-
-bool ledState1 = false;             // ledState used to set the LED
-unsigned long previousMillis1 = 0;        // will store last time LED was updated
-long OnTime1 = 1000;           // milliseconds of on-time
-long OffTime1 = 1000; 
-
-long OnTime2 = 2000;           // milliseconds of on-time
-long OffTime2 = 2000;
-
 void setup() {
   // These lines are specifically to support the Adafruit Trinket 5V 16 MHz.
   // Any other board, you can remove this part (but no harm leaving it):
 #if defined(__AVR_ATtiny85__) && (F_CPU == 16000000)
   clock_prescale_set(clock_div_1);
 #endif
+  // END of Trinket-specific code.
+
   strip.begin();           // INITIALIZE NeoPixel strip object (REQUIRED)
   strip.show();            // Turn OFF all pixels ASAP
   strip.setBrightness(5); // Set BRIGHTNESS to about 1/5 (max = 255)
-  // initialization();
-  Serial.begin(115200);
+  initialization();
 }
 
+// Some functions of our own for creating animated effects -----------------
+
+// Fill strip pixels one after another with a color. Strip is NOT cleared
+// first; anything there will be covered pixel by pixel. Pass in color
+// (as a single 'packed' 32-bit value, which you can get by calling
+// strip.Color(red, green, blue) as shown in the loop() function above),
+// and a delay time (in milliseconds) between pixels.
 void colorWipe(uint32_t color, int wait) {
   for(int i=0; i<strip.numPixels(); i++) { 
     strip.setPixelColor(i, color);        
@@ -74,6 +68,9 @@ void colorWipe(uint32_t color, int wait) {
   }
 }
 
+// Theater-marquee-style chasing lights. Pass in a color (32-bit value,
+// a la strip.Color(r,g,b) as mentioned above), and a delay time (in ms)
+// between frames.
 void theaterChase(uint32_t color, int wait) {
   for(int a=0; a<10; a++) {  // Repeat 10 times...
     for(int b=0; b<3; b++) { //  'b' counts from 0 to 2...
@@ -88,6 +85,7 @@ void theaterChase(uint32_t color, int wait) {
   }
 }
 
+// Rainbow cycle along whole strip. Pass delay time (in ms) between frames.
 void rainbow(int wait) {
   // Hue of first pixel runs 5 complete loops through the color wheel.
   // Color wheel has a range of 65536 but it's OK if we roll over, so
@@ -111,6 +109,7 @@ void rainbow(int wait) {
   }
 }
 
+// Rainbow-enhanced theater marquee. Pass delay time (in ms) between frames.
 void theaterChaseRainbow(int wait) {
   int firstPixelHue = 0;     // First pixel starts at red (hue 0)
   for(int a=0; a<30; a++) {  // Repeat 30 times...
@@ -136,157 +135,53 @@ void colorFade(uint8_t r, uint8_t g, uint8_t b, uint8_t wait) {
   for(uint16_t i = 0; i < strip.numPixels(); i++) {
       uint8_t curr_r, curr_g, curr_b;
       uint32_t curr_col = strip.getPixelColor(i); // get the current colour
-      curr_b = curr_col & 0xFF; 
-      curr_g = (curr_col >> 8) & 0xFF; 
-      curr_r = (curr_col >> 16) & 0xFF;  // separate into RGB components
-      // Serial.println(curr_col);
-      while ( (curr_r != r) || (curr_g != g) || (curr_b != b) ){  // while the curr color is not yet the target color
-        if (curr_r < r) 
-          curr_r++; 
-        else if (curr_r > r)
-          curr_r--;  // increment or decrement the old color values
-       
+      curr_b = curr_col & 0xFF; curr_g = (curr_col >> 8) & 0xFF; curr_r = (curr_col >> 16) & 0xFF;  // separate into RGB components
+
+      while ((curr_r != r) || (curr_g != g) || (curr_b != b)){  // while the curr color is not yet the target color
+        if (curr_r < r) curr_r++; else if (curr_r > r) curr_r--;  // increment or decrement the old color values
         if (curr_g < g) curr_g++; else if (curr_g > g) curr_g--;
         if (curr_b < b) curr_b++; else if (curr_b > b) curr_b--;
         strip.setPixelColor(i, curr_r, curr_g, curr_b);  // set the color
         strip.show();
         delay(wait);  // add a delay if its too fast
       }
-      // delay(500);
+      // delay(1000);
   }
 }
 
 void fadeInOut(){
-  int R = 43;
-  int G = 43;
-  int B = 43;
+  int R = 0;
+  int G = 0;
+  int B = 0;
   //Fade in
-  for(R && G && B; R<200 && G<200 && B<200; R++ && G++ && B++) {
-    for(int i=0; i<10; i++) {
+  for(R && G && B; R<126 && G<126; R++ && G++) {
+    for(int i=0; i<strip.numPixels(); i++) {
       strip.setPixelColor(i, strip.Color(R, G, B));
       strip.show();
+      // delay(0);
     }
+    
+    // delay(1);
   }
-    // delay(1000);
   //Fade Out
-  for(R && G && B; R>43 && G>43 && B>43; R-- && G-- && B--) {
-    for(int j=0; j<10; j++) {
+  for(R && G && B; R>-1 && G>-1 ; R-- && G--) {
+    for(int j=0; j<strip.numPixels(); j++) {
       strip.setPixelColor(j, strip.Color(R, G, B));
       strip.show();
+      // delay(0);
     }
+    // delay(1);
   }
-}
-
-class MyWs2812{
-
-int ledIndex;
-bool ledState2;            // ledState used to set the LED
-unsigned long previousMillis2; // will store last time LED was updated
-int fadeValue;
-long interval;
-
-public: MyWs2812(int pin,int interval){
-  ledIndex = pin;
-  ledState2 = false;
-  interval = interval;
-  previousMillis2 = 0;
-  fadeValue = 0;
-}
-void Update(){
-  unsigned long currentMillis = millis();
-   if(currentMillis - previousMillis2 > 50) {
-    previousMillis2 = currentMillis; // save the last time you blinked the LED 
-    if(ledState2 == false){
-        fadeValue = fadeValue + 20;
-      if (fadeValue >= 255) {// At max, limit and change direction
-        fadeValue = 255;
-        ledState2 = true;
-      }
-    }else{
-        fadeValue = fadeValue - 20;
-        if (fadeValue <= 0) {
-          // At min, limit and change direction
-          fadeValue = 0;
-          ledState2 = false;
-        }
-    }
-      strip.setPixelColor(ledIndex, strip.Color(0, 0, fadeValue));        
-      strip.show();   
-  }
-}
-};
-
-void fadeUsingCosine(){
-    int blue;
-  int periode = 2000;
-  // blue = 128+127*cos(2*PI/periode*currentMillis);
-  Serial.println(blue);
-  strip.setPixelColor(9, strip.Color(0, 0,blue ));          // sets the value (range from 0 to 255) 
-  strip.show();
-}
-MyWs2812 led1(5,100);
-MyWs2812 led2(6,100);
-
-void loop() {
-  unsigned long currentMillis = millis();
-if(currentMillis>=4000 &&currentMillis<=21000){
-  if(currentMillis - previousMillis1 > OnTime1) {
-      previousMillis1 = currentMillis; // save the last time you blinked the LED 
-      if(ledState1 == false){
-        strip.setPixelColor(10, strip.Color(255, 0, 0));//red
-        strip.show();
-        ledState1 = true;
-      }else{
-        strip.setPixelColor(10, strip.Color(255, 255, 255));//yellow
-        strip.show();  
-        ledState1 = false;
-      } 
-    }
 
 }
-led1.Update();
+  
 
 
 
-// if (thisMillis - previousFadeMillis >= fadeInterval) {
-//     // yup, it's time!
-//     if (fadeDirection == UP) {
-//       fadeValue = fadeValue + fadeIncrement;  
-//       if (fadeValue >= maxPWM) {
-//         // At max, limit and change direction
-//         fadeValue = maxPWM;
-//         fadeDirection = DOWN;
-//       }
-//     } else {
-//       //if we aren't going up, we're going down
-//       fadeValue = fadeValue - fadeIncrement;
-//       if (fadeValue <= minPWM) {
-//         // At min, limit and change direction
-//         fadeValue = minPWM;
-//         fadeDirection = UP;
-//       }
-//     }
-//     // Only need to update when it changes
-//     analogWrite(pwmLED, fadeValue);  
- 
-//     // reset millis for the next iteration (fade timer only)
-//     previousFadeMillis = thisMillis;
-//   }
-
-
-
-  // for(int i=0; i<strip.numPixels()-2; i++) { 
-  //     strip.setPixelColor(i, strip.Color(0, 0, 255));        
-  //     strip.show();   
-  //     delay(500);
-  // }                     
-
-
-
-  // fadeInOut();
+  void loop() {
 
   // Fill along the length of the strip in various colors...
-  // colorWipe(strip.Color(255, 0, 0), 200); // Red
+  // colorWipe(strip.Color(255, 0, 0), 100); // Red
   // colorWipe(strip.Color(  0, 255,   0), 500); // Green
   // colorWipe(strip.Color(  0,   0, 255), 50); // Blue
 
@@ -298,8 +193,7 @@ led1.Update();
   // rainbow(500);             // Flowing rainbow cycle along the whole strip
   // theaterChaseRainbow(500); // Rainbow-enhanced theaterChase variant
 
-  // colorFade(255, 0, 0, 300); // fade into red
-  // colorFade(0, 0, 150, 300); // and then into white
+  // colorFade(255, 0, 0, 10); // fade into red
+  // colorFade(0, 0, 150, 10); // and then into white
 
 }
-
