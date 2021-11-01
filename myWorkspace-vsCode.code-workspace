@@ -5,5 +5,10 @@
 			"path": "."
 		}
 	],
-	"settings": {}
+	"settings": {
+		"files.associations": {
+			"ws2812": "cpp",
+			"speaker": "cpp"
+		}
+	}
 }

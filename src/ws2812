@@ -212,7 +212,7 @@ unsigned long previousMillis2; // will store last time LED was updated
 int fadeValue;
 long interval;
 
-public: MyWs2812(int pin,int interval){
+public: MyWs2812(int pin,long interval){
   ledIndex = pin;
   ledState2 = false;
   interval = interval;
@@ -239,7 +239,7 @@ void Update(){
     }
       strip.setPixelColor(ledIndex, strip.Color(0, 0, fadeValue));        
       strip.show();   
-
+    Serial.println(previousMillis2)
   }
 }
 };
