@@ -44,13 +44,14 @@ void fadeUsingCosine(){
   }
 }
 
-void initialization(){
-  strip.clear();
+void initialization(unsigned long currentMillis){
   uint32_t white = strip.Color(255, 255, 255);
   uint32_t yellow = strip.Color(255, 255, 0);
-  delay(1000);
+  // delay(1000);
+  if(currentMillis == 1000){
   strip.setPixelColor(0, white);
   strip.show();
+  }
   delay(4000);
 
     for(int i=0; i<strip.numPixels(); i++) {  
@@ -68,7 +69,7 @@ void initialization(){
       delay(200);                         
     }
     delay(1000); 
-    fadeUsingCosine();
+    // fadeUsingCosine();
 }
 
 bool ledState1 = false;             // ledState used to set the LED
@@ -80,29 +81,27 @@ void setup() {
   Serial.begin(115200);//115200
   mySoftwareSerial.begin(9600);
   pinMode(A0, INPUT);
-  Serial.println(); 
-  Serial.println(F("DFRobot DFPlayer Mini Demo"));
-  Serial.println(F("Initializing DFPlayer ... (May take 3~5 seconds)"));
-  
-  if (!myDFPlayer.begin(mySoftwareSerial)) {  //Use softwareSerial to communicate with mp3.
-    Serial.println(F("Unable to begin:"));
-    Serial.println(F("1.Please recheck the connection!"));
-    Serial.println(F("2.Please insert the SD card!"));
-    while(true){
-      delay(0); // Code to compatible with ESP8266 watch dog.
-    }
-  }else{
-    Serial.println(F("DFPlayer Mini online."));
-    myDFPlayer.volume(map(analogRead(A0),0,1023,0,27));
-    myDFPlayer.play(1); //play music
-    // strip.begin();           // INITIALIZE NeoPixel strip object (REQUIRED)
-    // strip.show();            // Turn OFF all pixels ASAP
+  Serial.println("Starting..."); 
+  // Serial.println(F("DFRobot DFPlayer Mini Demo"));
+  // Serial.println(F("Initializing DFPlayer ... (May take 3~5 seconds)"));
+  //
+  // if (!myDFPlayer.begin(mySoftwareSerial)) {  //Use softwareSerial to communicate with mp3.
+  //   Serial.println(F("Unable to begin:"));
+  //   Serial.println(F("1.Please recheck the connection!"));
+  //   Serial.println(F("2.Please insert the SD card!"));
+  //   while(true){
+  //     delay(0); // Code to compatible with ESP8266 watch dog.
+  //   }
+  // }else{
+  //   Serial.println(F("DFPlayer Mini online."));
+  //   myDFPlayer.volume(map(analogRead(A0),0,1023,0,27));
+  //   myDFPlayer.play(1); //play music
     strip.setBrightness(5); // Set BRIGHTNESS (max = 255)
-    // initialization(); 
-  }
-  
- 
+    strip.begin();           // INITIALIZE NeoPixel strip object (REQUIRED)
+    strip.show();            // Turn OFF all pixels ASAP
+  // }
 }
+
 
 void colorWipe(uint32_t color, int wait) {
   for(int i=0; i<strip.numPixels(); i++) { 
@@ -224,44 +223,63 @@ unsigned long previousMillis; // will store last time LED was updated
 int fadeValue;
 long interval;
 
-public: MyWs2812(int index,int interval){
+public: 
+MyWs2812(int index,int interval){
   this->index = index;
   this->ledState = false;
   this->interval = interval;
   this->previousMillis = 0;
   this->fadeValue = 0;
-}
-void Update(int newInterval){
-  unsigned long currentMillis = millis();
-   if(currentMillis - previousMillis > newInterval) {
-    previousMillis = currentMillis; // save the last time you blinked the LED 
-    if(ledState == false){
-        fadeValue = fadeValue + 20;
-      if (fadeValue >= 255) {// At max, limit and change direction
-        fadeValue = 255;
-        ledState = true;
-      }
-    }else{
-        fadeValue = fadeValue - 20;
-        if (fadeValue <= 0) {
-          // At min, limit and change direction
-          fadeValue = 0;
-          ledState = false;
-        }
-    }
-      strip.setPixelColor(index, strip.Color(0, 0, fadeValue));        
-      strip.show();   
 
+}  
+  void setPreviousMillis(unsigned long millis){
+    previousMillis = millis;
   }
-}
+  unsigned long getPreviousMillis(){
+    return previousMillis;
+  }
+
+  void Update(int newInterval){
+    unsigned long currentMillis = millis();
+    if(currentMillis - previousMillis > newInterval) {
+      previousMillis = currentMillis; // save the last time you blinked the LED 
+      if(ledState == false){
+          fadeValue = fadeValue + 20;
+        if (fadeValue >= 255) {// At max, limit and change direction
+          fadeValue = 255;
+          ledState = true;
+        }
+      }else{
+          fadeValue = fadeValue - 20;
+          if (fadeValue <= 0) {
+            // At min, limit and change direction
+            fadeValue = 0;
+            ledState = false;
+          }
+      }
+        strip.setPixelColor(index, strip.Color(0, 0, fadeValue));        
+        strip.show();   
+    }
+  }
+
 };
 
-
+MyWs2812 led0(0,200);
+MyWs2812 led1(1,200);
+MyWs2812 led2(2,200);
+MyWs2812 led3(3,200);
+MyWs2812 led4(4,200);
 MyWs2812 led5(5,200);
+MyWs2812 led6(6,200);
+MyWs2812 led7(7,200);
+MyWs2812 led8(8,200);
+MyWs2812 led9(9,200);
+MyWs2812 led10(10,200);
 
 
 void loop() {
-  // unsigned long currentMillis = millis();
+  unsigned long currentMillis = millis();
+  int interval = 500;
 // if(currentMillis>=4000 &&currentMillis<=21000){
 //   if(currentMillis - previousMillis1 > OnTime1) {
 //       previousMillis1 = currentMillis; // save the last time you blinked the LED 
@@ -276,19 +294,24 @@ void loop() {
 //       } 
 //     }
 // }
- myDFPlayer.volume(map(analogRead(A0),0,1023,0,27));
-   if (myDFPlayer.available()) {
-    printDetail(myDFPlayer.readType(), myDFPlayer.read()); //Print the detail message from DFPlayer to handle different errors and states.
-  }
-// led5.Update(200);
+    // initialization(currentMillis);
+//  myDFPlayer.volume(map(analogRead(A0),0,1023,0,27));
+//    if (myDFPlayer.available()) {
+//     printDetail(myDFPlayer.readType(), myDFPlayer.read()); //Print the detail message from DFPlayer to handle different errors and states.
+//   }
+// led5.Update(200);`
 // led2.Update();
 
+//IT WORKED!!!!!!HAHAHAHAHA STATE MACHINEEEE WS2812:)
+  for(int i=0; i<strip.numPixels()-2; i++) { 
+     if( (millis()-0) > interval){
+      strip.setPixelColor(i, strip.Color(0, 0, 255));        
+      strip.show();  
+     }
+     
+  }                     
 
-  // for(int i=0; i<strip.numPixels()-2; i++) { 
-  //     strip.setPixelColor(i, strip.Color(0, 0, 255));        
-  //     strip.show();   
-  //     delay(500);
-  // }                     
+
 
   // fadeInOut();
 
