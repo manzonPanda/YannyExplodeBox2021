@@ -44,70 +44,85 @@ void fadeUsingCosine(){
   }
 }
 
-// void initialization(){
-//   unsigned long currentMillis = millis();
-//   uint32_t white = strip.Color(255, 255, 255);
-//   uint32_t yellow = strip.Color(255, 255, 0);
+int previousMillis = 0;
+int i = 0;
+void initialization(unsigned long currentMillis){
+  uint32_t white = strip.Color(255, 255, 255);
+  uint32_t yellow = strip.Color(255, 255, 0);
+  // Serial.println(currentMillis);
  
-//   if(millis() == 1000){ // delay(1000);
-//   strip.setPixelColor(0, white);
-//   strip.show();
-//   }
-//   if(millis() == 4000){ //delay(4000);
+  if( (currentMillis == 1000) ){ // delay(1000);
+  Serial.print("milli 1000!!!:");
+  Serial.println(millis());
+  strip.setPixelColor(5, white);
+  strip.show();
+  }
+  if(millis() >= 4000){ //delay(4000);
+    if( ( currentMillis-previousMillis > 1000) && i<strip.numPixels()){
+      previousMillis = currentMillis;
+      if( i == strip.numPixels()-1 ){
+        strip.setPixelColor(i, yellow);
+        strip.show();
+        strip.setPixelColor(i-1, strip.Color(0, 0, 0));
+        strip.show();
+      }else{
+        strip.setPixelColor(i, white);
+        strip.show();
+        strip.setPixelColor(i-1, strip.Color(0, 0, 0));
+        strip.show();
+      }
+      i++;
+      Serial.println(i);
+    }
 
-//   if(millis() > 200){
+    // for(int i=0; i<strip.numPixels(); i++) {  
+    //   if( i== strip.numPixels()-1 ){
+    //     strip.setPixelColor(i, yellow);
+    //     strip.show();
+    //     strip.setPixelColor(i-1, strip.Color(0, 0, 0));
+    //     strip.show();
+    //   }else{
+    //     strip.setPixelColor(i, white);
+    //     strip.show();
+    //     strip.setPixelColor(i-1, strip.Color(0, 0, 0));
+    //     strip.show();
+    //   }
+    //   delay(200);                         
+    // }
+  }
 
-//   }
-
-//     for(int i=0; i<strip.numPixels(); i++) {  
-//       if( i== strip.numPixels()-1 ){
-//         strip.setPixelColor(i, yellow);
-//         strip.show();
-//         strip.setPixelColor(i-1, strip.Color(0, 0, 0));
-//         strip.show();
-//       }else{
-//         strip.setPixelColor(i, white);
-//         strip.show();
-//         strip.setPixelColor(i-1, strip.Color(0, 0, 0));
-//         strip.show();
-//       }
-//       delay(200);                         
-//     }
-
-//   }
-
-//     delay(1000); 
-//     // fadeUsingCosine();
-// }
+    // fadeUsingCosine();
+}
 
 bool ledState1 = false;             // ledState used to set the LED
 unsigned long previousMillis1 = 0;        // will store last time LED was updated
 long OnTime1 = 1000;           // milliseconds of on-time
 long OffTime1 = 1000; 
-
+int currentVolume = 0;
 void setup() {
   Serial.begin(115200);//115200
   mySoftwareSerial.begin(9600);
   pinMode(A0, INPUT);
   Serial.println("Starting..."); 
-  // Serial.println(F("DFRobot DFPlayer Mini Demo"));
-  // Serial.println(F("Initializing DFPlayer ... (May take 3~5 seconds)"));
-  //
-  // if (!myDFPlayer.begin(mySoftwareSerial)) {  //Use softwareSerial to communicate with mp3.
-  //   Serial.println(F("Unable to begin:"));
-  //   Serial.println(F("1.Please recheck the connection!"));
-  //   Serial.println(F("2.Please insert the SD card!"));
-  //   while(true){
-  //     delay(0); // Code to compatible with ESP8266 watch dog.
-  //   }
-  // }else{
-  //   Serial.println(F("DFPlayer Mini online."));
-  //   myDFPlayer.volume(map(analogRead(A0),0,1023,0,27));
-  //   myDFPlayer.play(1); //play music
+  Serial.println(F("DFRobot DFPlayer Mini Demo"));
+  Serial.println(F("Initializing DFPlayer ... (May take 3~5 seconds)"));
+   
+  if (!myDFPlayer.begin(mySoftwareSerial)) {  //Use softwareSerial to communicate with mp3.
+    Serial.println(F("Unable to begin:"));
+    Serial.println(F("1.Please recheck the connection!"));
+    Serial.println(F("2.Please insert the SD card!"));
+    while(true){
+      delay(0); // Code to compatible with ESP8266 watch dog.
+    }
+  }else{
     strip.setBrightness(5); // Set BRIGHTNESS (max = 255)
     strip.begin();           // INITIALIZE NeoPixel strip object (REQUIRED)
     strip.show();            // Turn OFF all pixels ASAP
-  // }
+    Serial.println(F("DFPlayer Mini online."));
+    currentVolume = map(analogRead(A0),0,1023,0,27);
+    myDFPlayer.volume(currentVolume);
+    myDFPlayer.play(1); //play music
+  }
 }
 
 
@@ -273,21 +288,10 @@ MyWs2812(int index,int interval){
 };
 
 MyWs2812 led0(0,200);
-MyWs2812 led1(1,200);
-MyWs2812 led2(2,200);
-MyWs2812 led3(3,200);
-MyWs2812 led4(4,200);
-MyWs2812 led5(5,200);
-MyWs2812 led6(6,200);
-MyWs2812 led7(7,200);
-MyWs2812 led8(8,200);
-MyWs2812 led9(9,200);
-MyWs2812 led10(10,200);
+int previousVolumeState = 0;
 
-int previousMillis = 0;
-int i = 0;
 void loop() {
-  unsigned long currentMillis = millis();
+  // unsigned long currentMillis = millis();
 // if(currentMillis>=4000 &&currentMillis<=21000){
 //   if(currentMillis - previousMillis1 > OnTime1) {
 //       previousMillis1 = currentMillis; // save the last time you blinked the LED 
@@ -302,8 +306,23 @@ void loop() {
 //       } 
 //     }
 // }
-  // initialization();
+  initialization(millis());
   // myDFPlayer.volume(map(analogRead(A0),0,1023,0,27));
+  // int newVolume = (int) 28 * analogRead(A0) / 1024;
+
+  if( millis()-previousVolumeState > 500 ){
+     previousVolumeState = millis();
+     if( ((int) 27 * analogRead(A0) / 1024) != currentVolume){
+       currentVolume = myDFPlayer.readVolume();
+        myDFPlayer.volume(((int) 27 * analogRead(A0) / 1024));
+        Serial.print("changed volume");
+        Serial.println(currentVolume);
+     }
+  }
+  // if( ((int) 28 * analogRead(A0) / 1024) != myDFPlayer.readVolume() ){
+  //   myDFPlayer.volume(((int) 28 * analogRead(A0) / 1024));
+  // }
+
   //  if (myDFPlayer.available()) {
   //   printDetail(myDFPlayer.readType(), myDFPlayer.read()); //Print the detail message from DFPlayer to handle different errors and states.
   // }
@@ -311,16 +330,12 @@ void loop() {
 // led2.Update();
 
 //now it  worked! wrong stateMachine before
-  // for(int i=0; i<strip.numPixels()-2; i++) { 
-     if( (millis()-previousMillis) > 500){
-       previousMillis = millis();
-      strip.setPixelColor(i, strip.Color(0, 0, 255));        
-      strip.show(); 
-      i++; 
-     }
-  // }                     
-
-
+  // if( (millis()-previousMillis) > 500){
+  //     previousMillis = millis();
+  //     strip.setPixelColor(i, strip.Color(0, 0, 255));        
+  //     strip.show(); 
+  //     i++; 
+  // }                    
 
   // fadeInOut();
 
