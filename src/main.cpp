@@ -25,23 +25,28 @@ SoftwareSerial mySoftwareSerial(10, 11); // RX, TX
 DFRobotDFPlayerMini myDFPlayer;
 void printDetail(uint8_t type, int value);
 
-void fadeUsingCosine(){
   int color;
-  int periode = 2000;
-  unsigned long currentMillis = millis();
-  unsigned long timeZero = currentMillis;
+  unsigned long previousStarFadeMillis = 0;
+void fadeUsingCosine(unsigned long currentMillis){
+  // int periode = 2000;
+  // unsigned long currentMillis = millis();
 
-  while( true ){
-    currentMillis = millis();
-    if ( (currentMillis-timeZero) < 5000 ){
-      color = 128+127*cos(2*PI/periode*currentMillis);
+  // while( true ){
+  //   currentMillis = millis();
+  if( (currentMillis >= 12900) && currentMillis<=20000 ){
+    // if ( (currentMillis-previousStarFadeMillis) > 600 ){
+      // fadeStarMillis = currentMillis;
+      color = 128+127*cos(2*PI/500*currentMillis);
       Serial.println(currentMillis);
       strip.setPixelColor(10, strip.Color(color, color,0 ));          // sets the value (range from 0 to 255) 
       strip.show();
-    }else{
-      break;
-    }
+    // }
+
   }
+  //   else{
+  //     break;
+  //   }
+  // }
 }
 
 int previousMillis = 0;
@@ -51,14 +56,14 @@ void initialization(unsigned long currentMillis){
   uint32_t yellow = strip.Color(255, 255, 0);
   // Serial.println(currentMillis);
  
-  if( (currentMillis == 1000) ){ // delay(1000);
+  if( (currentMillis == 3500) ){ // delay(1000);
   Serial.print("milli 1000!!!:");
   Serial.println(millis());
-  strip.setPixelColor(5, white);
+  strip.setPixelColor(3, yellow);
   strip.show();
   }
-  if(millis() >= 4000){ //delay(4000);
-    if( ( currentMillis-previousMillis > 1000) && i<strip.numPixels()){
+  if(millis() >= 5000){ //delay(4000);
+    if( ( currentMillis-previousMillis > 600) && i<strip.numPixels()){
       previousMillis = currentMillis;
       if( i == strip.numPixels()-1 ){
         strip.setPixelColor(i, yellow);
@@ -74,24 +79,8 @@ void initialization(unsigned long currentMillis){
       i++;
       Serial.println(i);
     }
-
-    // for(int i=0; i<strip.numPixels(); i++) {  
-    //   if( i== strip.numPixels()-1 ){
-    //     strip.setPixelColor(i, yellow);
-    //     strip.show();
-    //     strip.setPixelColor(i-1, strip.Color(0, 0, 0));
-    //     strip.show();
-    //   }else{
-    //     strip.setPixelColor(i, white);
-    //     strip.show();
-    //     strip.setPixelColor(i-1, strip.Color(0, 0, 0));
-    //     strip.show();
-    //   }
-    //   delay(200);                         
-    // }
   }
-
-    // fadeUsingCosine();
+    
 }
 
 bool ledState1 = false;             // ledState used to set the LED
@@ -306,16 +295,15 @@ void loop() {
 //       } 
 //     }
 // }
-  initialization(millis());
-  // myDFPlayer.volume(map(analogRead(A0),0,1023,0,27));
-  // int newVolume = (int) 28 * analogRead(A0) / 1024;
-
-  if( millis()-previousVolumeState > 500 ){
+  // initialization(millis());
+  fadeUsingCosine(millis());
+  if( millis()-previousVolumeState > 50 ){
      previousVolumeState = millis();
      if( ((int) 27 * analogRead(A0) / 1024) != currentVolume){
-       currentVolume = myDFPlayer.readVolume();
+      //  myDFPlayer.volume(map(analogRead(A0),0,1023,0,27));
         myDFPlayer.volume(((int) 27 * analogRead(A0) / 1024));
-        Serial.print("changed volume");
+        currentVolume = myDFPlayer.readVolume();
+        Serial.print("changed volume:");
         Serial.println(currentVolume);
      }
   }
