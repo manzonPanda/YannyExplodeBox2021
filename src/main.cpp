@@ -25,28 +25,83 @@ SoftwareSerial mySoftwareSerial(10, 11); // RX, TX
 DFRobotDFPlayerMini myDFPlayer;
 void printDetail(uint8_t type, int value);
 
-  int color;
+  // int color;
+  int color = 50;
   unsigned long previousStarFadeMillis = 0;
+  bool starState = false;
+  int rainDropCirclePreviousMillis=0;
+  int boxLayer3[2] = {8,7};
+  int boxLayer2[2] = {5,4};
+  int boxLayer1[2] = {2,1};
+  int boxLayerCount = 3;
 void fadeUsingCosine(unsigned long currentMillis){
-  // int periode = 2000;
-  // unsigned long currentMillis = millis();
-
-  // while( true ){
-  //   currentMillis = millis();
-  if( (currentMillis >= 12900) && currentMillis<=20000 ){
-    // if ( (currentMillis-previousStarFadeMillis) > 600 ){
-      // fadeStarMillis = currentMillis;
-      color = 128+127*cos(2*PI/500*currentMillis);
-      Serial.println(currentMillis);
-      strip.setPixelColor(10, strip.Color(color, color,0 ));          // sets the value (range from 0 to 255) 
-      strip.show();
-    // }
-
-  }
-  //   else{
-  //     break;
-  //   }
+  // if( (currentMillis >= 12900) && currentMillis<=20000 ){
+  //     color = 128+127*cos(2*PI/1000*currentMillis);
+  //     Serial.println(currentMillis);
+  //     strip.setPixelColor(10, strip.Color(color, color,0 ));// sets the value (range from 0 to 255) 
+  //     strip.show();
   // }
+
+ if( (currentMillis >= 12800) && currentMillis<=20000 ){
+  if( currentMillis >= 13000 ){ // if 13000, show rainDownCircle
+   if( (currentMillis-rainDropCirclePreviousMillis) > 100 ){
+      rainDropCirclePreviousMillis = currentMillis;
+      for(int i=0; i<=1; i++){ //show
+        if(boxLayerCount==3){
+          strip.setPixelColor(boxLayer3[i], strip.Color(255, 255, 0));
+        }else if(boxLayerCount==2){
+          strip.setPixelColor(boxLayer2[i], strip.Color(255, 255, 0));
+        }else if(boxLayerCount==1){
+          strip.setPixelColor(boxLayer1[i], strip.Color(255, 255, 0));
+        }
+      }
+        strip.show();
+      for(int m=0; m<=1; m++){  //hide
+        if(boxLayerCount==2){
+          strip.setPixelColor(boxLayer3[m], strip.Color(0, 0, 0));
+        }else if(boxLayerCount==1){
+          strip.setPixelColor(boxLayer2[m], strip.Color(0, 0, 0));
+        }else if(boxLayerCount==0){
+          strip.setPixelColor(boxLayer1[m], strip.Color(0, 0, 0));
+        }
+      }
+      strip.show();
+      if(boxLayerCount > 0)
+      boxLayerCount--;
+   }
+  } 
+
+  if( (millis()-previousStarFadeMillis) > 40){ //and glow the Star*
+      previousStarFadeMillis = millis();
+      if(starState==false){
+        Serial.println(color);
+        color+=10;        
+        strip.setPixelColor(10, strip.Color(color, color, 0));        
+        strip.show(); 
+        if(color>=255){
+          starState=true;
+        }
+      }
+      if(starState==true){
+        color-=10;        
+        strip.setPixelColor(10, strip.Color(color, color, 0));        
+        strip.show(); 
+        if(color<=55){
+          starState=false;
+        }
+      }
+  }
+ }
+
+//now it  worked! wrong stateMachine before
+  // if( (millis()-previousMillis) > 500){
+  //     previousMillis = millis();
+  //     strip.setPixelColor(i, strip.Color(0, 0, 255));        
+  //     strip.show(); 
+  //     i++; 
+  // }   
+
+
 }
 
 int previousMillis = 0;
@@ -63,24 +118,17 @@ void initialization(unsigned long currentMillis){
   strip.show();
   }
   if(millis() >= 5000){ //delay(4000);
-    if( ( currentMillis-previousMillis > 600) && i<strip.numPixels()){
+    if( ( currentMillis-previousMillis > 300) && i<=strip.numPixels()){
       previousMillis = currentMillis;
-      if( i == strip.numPixels()-1 ){
-        strip.setPixelColor(i, yellow);
-        strip.show();
-        strip.setPixelColor(i-1, strip.Color(0, 0, 0));
-        strip.show();
-      }else{
-        strip.setPixelColor(i, white);
-        strip.show();
-        strip.setPixelColor(i-1, strip.Color(0, 0, 0));
-        strip.show();
-      }
+      strip.setPixelColor(i, white);
+      strip.show();
+      strip.setPixelColor(i-1, strip.Color(0, 0, 0));
+      strip.show();
       i++;
       Serial.println(i);
     }
   }
-    
+
 }
 
 bool ledState1 = false;             // ledState used to set the LED
@@ -278,9 +326,8 @@ MyWs2812(int index,int interval){
 
 MyWs2812 led0(0,200);
 int previousVolumeState = 0;
-
 void loop() {
-  // unsigned long currentMillis = millis();
+  unsigned long currentMillis = millis();
 // if(currentMillis>=4000 &&currentMillis<=21000){
 //   if(currentMillis - previousMillis1 > OnTime1) {
 //       previousMillis1 = currentMillis; // save the last time you blinked the LED 
@@ -295,7 +342,8 @@ void loop() {
 //       } 
 //     }
 // }
-  // initialization(millis());
+
+  initialization(millis());
   fadeUsingCosine(millis());
   if( millis()-previousVolumeState > 50 ){
      previousVolumeState = millis();
@@ -314,7 +362,7 @@ void loop() {
   //  if (myDFPlayer.available()) {
   //   printDetail(myDFPlayer.readType(), myDFPlayer.read()); //Print the detail message from DFPlayer to handle different errors and states.
   // }
-// led5.Update(200);`
+// led5.Update(200);
 // led2.Update();
 
 //now it  worked! wrong stateMachine before
@@ -337,7 +385,7 @@ void loop() {
   // theaterChase(strip.Color(127,   0,   0), 500); // Red, half brightness
   // theaterChase(strip.Color(  0,   0, 127), 500); // Blue, half brightness
 
-  // rainbow(500);             // Flowing rainbow cycle along the whole strip
+  // rainbow(10);             // Flowing rainbow cycle along the whole strip
   // theaterChaseRainbow(500); // Rainbow-enhanced theaterChase variant
 
   // colorFade(255, 0, 0, 300); // fade into red
