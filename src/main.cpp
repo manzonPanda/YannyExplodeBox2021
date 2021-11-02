@@ -44,33 +44,41 @@ void fadeUsingCosine(){
   }
 }
 
-void initialization(unsigned long currentMillis){
-  uint32_t white = strip.Color(255, 255, 255);
-  uint32_t yellow = strip.Color(255, 255, 0);
-  // delay(1000);
-  if(currentMillis == 1000){
-  strip.setPixelColor(0, white);
-  strip.show();
-  }
-  delay(4000);
+// void initialization(){
+//   unsigned long currentMillis = millis();
+//   uint32_t white = strip.Color(255, 255, 255);
+//   uint32_t yellow = strip.Color(255, 255, 0);
+ 
+//   if(millis() == 1000){ // delay(1000);
+//   strip.setPixelColor(0, white);
+//   strip.show();
+//   }
+//   if(millis() == 4000){ //delay(4000);
 
-    for(int i=0; i<strip.numPixels(); i++) {  
-      if( i== strip.numPixels()-1 ){
-        strip.setPixelColor(i, yellow);
-        strip.show();
-        strip.setPixelColor(i-1, strip.Color(0, 0, 0));
-        strip.show();
-      }else{
-        strip.setPixelColor(i, white);
-        strip.show();
-        strip.setPixelColor(i-1, strip.Color(0, 0, 0));
-        strip.show();
-      }
-      delay(200);                         
-    }
-    delay(1000); 
-    // fadeUsingCosine();
-}
+//   if(millis() > 200){
+
+//   }
+
+//     for(int i=0; i<strip.numPixels(); i++) {  
+//       if( i== strip.numPixels()-1 ){
+//         strip.setPixelColor(i, yellow);
+//         strip.show();
+//         strip.setPixelColor(i-1, strip.Color(0, 0, 0));
+//         strip.show();
+//       }else{
+//         strip.setPixelColor(i, white);
+//         strip.show();
+//         strip.setPixelColor(i-1, strip.Color(0, 0, 0));
+//         strip.show();
+//       }
+//       delay(200);                         
+//     }
+
+//   }
+
+//     delay(1000); 
+//     // fadeUsingCosine();
+// }
 
 bool ledState1 = false;             // ledState used to set the LED
 unsigned long previousMillis1 = 0;        // will store last time LED was updated
@@ -276,10 +284,10 @@ MyWs2812 led8(8,200);
 MyWs2812 led9(9,200);
 MyWs2812 led10(10,200);
 
-
+int previousMillis = 0;
+int i = 0;
 void loop() {
   unsigned long currentMillis = millis();
-  int interval = 500;
 // if(currentMillis>=4000 &&currentMillis<=21000){
 //   if(currentMillis - previousMillis1 > OnTime1) {
 //       previousMillis1 = currentMillis; // save the last time you blinked the LED 
@@ -294,22 +302,23 @@ void loop() {
 //       } 
 //     }
 // }
-    // initialization(currentMillis);
-//  myDFPlayer.volume(map(analogRead(A0),0,1023,0,27));
-//    if (myDFPlayer.available()) {
-//     printDetail(myDFPlayer.readType(), myDFPlayer.read()); //Print the detail message from DFPlayer to handle different errors and states.
-//   }
+  // initialization();
+  // myDFPlayer.volume(map(analogRead(A0),0,1023,0,27));
+  //  if (myDFPlayer.available()) {
+  //   printDetail(myDFPlayer.readType(), myDFPlayer.read()); //Print the detail message from DFPlayer to handle different errors and states.
+  // }
 // led5.Update(200);`
 // led2.Update();
 
-//IT WORKED!!!!!!HAHAHAHAHA STATE MACHINEEEE WS2812:)
-  for(int i=0; i<strip.numPixels()-2; i++) { 
-     if( (millis()-0) > interval){
+//now it  worked! wrong stateMachine before
+  // for(int i=0; i<strip.numPixels()-2; i++) { 
+     if( (millis()-previousMillis) > 500){
+       previousMillis = millis();
       strip.setPixelColor(i, strip.Color(0, 0, 255));        
-      strip.show();  
+      strip.show(); 
+      i++; 
      }
-     
-  }                     
+  // }                     
 
 
 
