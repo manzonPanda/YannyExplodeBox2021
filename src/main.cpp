@@ -110,12 +110,12 @@ void fadeUsingCosine(unsigned long currentMillis){
 
 }
 
-  unsigned long previousBlowMillis = 0;
-  int blowColor = 50;
+ unsigned long previousBlowMillis = 0;
+int blowColor = 50;
 bool glowChange = false;
 bool blowState = false;
 void blowHearts(unsigned long currentMillis){
- if(currentMillis == 21000 || currentMillis == 25000){
+ if(currentMillis == 21000 || currentMillis == 25000 || currentMillis == 29000){
     glowChange=false;
     blowState=false;
     blowColor=50;
@@ -123,6 +123,7 @@ void blowHearts(unsigned long currentMillis){
   if( currentMillis >= 20000 && currentMillis <= 21000
       || currentMillis >= 23300 && currentMillis <= 24300
       || currentMillis >= 27000 && currentMillis <= 28000
+      || currentMillis >= 30500 && currentMillis <= 31500
       ){ 
     if( (millis()-previousBlowMillis) > 15){ //glow from white to red
         previousBlowMillis = millis();
@@ -136,6 +137,10 @@ void blowHearts(unsigned long currentMillis){
                 strip.setPixelColor(boxHeart2[i], strip.Color(blowColor, 0, 0));
               }else if(boxHeartCount==0){
                 strip.setPixelColor(boxHeart1[i], strip.Color(blowColor, 0, 0));
+              }else if(boxHeartCount==-1){
+                strip.setPixelColor(boxHeart3[i], strip.Color(blowColor, 0, 0));
+                strip.setPixelColor(boxHeart2[i], strip.Color(blowColor, 0, 0));
+                strip.setPixelColor(boxHeart1[i], strip.Color(blowColor, 0, 0));
               }
             }
             // strip.setPixelColor(5, strip.Color(blowColor,0, 0));//red 
@@ -145,7 +150,13 @@ void blowHearts(unsigned long currentMillis){
                 strip.setPixelColor(boxHeart3[i], strip.Color(blowColor, blowColor, blowColor));
               }else if(boxHeartCount==2){
                 strip.setPixelColor(boxHeart2[i], strip.Color(blowColor, blowColor, blowColor));
+                strip.setPixelColor(boxHeart3[i], strip.Color(0, 0, 0));
               }else if(boxHeartCount==1){
+                strip.setPixelColor(boxHeart1[i], strip.Color(blowColor, blowColor, blowColor));
+                strip.setPixelColor(boxHeart2[i], strip.Color(0, 0, 0));
+              }else if(boxHeartCount==0){
+                strip.setPixelColor(boxHeart3[i], strip.Color(blowColor, blowColor, blowColor));
+                strip.setPixelColor(boxHeart2[i], strip.Color(blowColor, blowColor, blowColor));
                 strip.setPixelColor(boxHeart1[i], strip.Color(blowColor, blowColor, blowColor));
               }
             }
@@ -164,6 +175,10 @@ void blowHearts(unsigned long currentMillis){
               }else if(boxHeartCount==2){
                 strip.setPixelColor(boxHeart2[i], strip.Color(blowColor, blowColor, blowColor));
               }else if(boxHeartCount==1){
+                strip.setPixelColor(boxHeart1[i], strip.Color(blowColor, blowColor, blowColor));
+              }else if(boxHeartCount==0){
+                strip.setPixelColor(boxHeart3[i], strip.Color(blowColor, blowColor, blowColor));
+                strip.setPixelColor(boxHeart2[i], strip.Color(blowColor, blowColor, blowColor));
                 strip.setPixelColor(boxHeart1[i], strip.Color(blowColor, blowColor, blowColor));
               }
             }
@@ -417,8 +432,8 @@ void loop() {
 //       } 
 //     }
 // }
-  initialization(millis());
-  fadeUsingCosine(millis());
+  // initialization(millis());
+  // fadeUsingCosine(millis());
   blowHearts(millis());
   if( millis()-previousVolumeState > 1000 ){
      previousVolumeState = millis();
