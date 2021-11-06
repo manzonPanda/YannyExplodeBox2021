@@ -19,6 +19,7 @@
 #define LED_PIN    5
 #define LED_COUNT 11
 
+
 // Declare our NeoPixel strip object:
 Adafruit_NeoPixel strip(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800);
 SoftwareSerial mySoftwareSerial(10, 11); // RX, TX
@@ -120,11 +121,11 @@ void blowHearts(unsigned long currentMillis){
     blowState=false;
     blowColor=50;
   }
-  if( currentMillis >= 20000 && currentMillis <= 21000
-      || currentMillis >= 23300 && currentMillis <= 24300
-      || currentMillis >= 27000 && currentMillis <= 28000
-      || currentMillis >= 30500 && currentMillis <= 31500
-      ){ 
+  if( (currentMillis >= 20000 && currentMillis <= 21000) ||
+      (currentMillis >= 23300 && currentMillis <= 24300) ||
+      (currentMillis >= 27000 && currentMillis <= 28000) ||
+      (currentMillis >= 30500 && currentMillis <= 31500) ){ 
+
     if( (millis()-previousBlowMillis) > 15){ //glow from white to red
         previousBlowMillis = millis();
         if(blowState==false){
@@ -250,7 +251,6 @@ void setup() {
     myDFPlayer.play(1); //play music
   }
 }
-
 
 void colorWipe(uint32_t color, int wait) {
   for(int i=0; i<strip.numPixels(); i++) { 
@@ -413,8 +413,40 @@ MyWs2812(int index,int interval){
 
 };
 
+
 MyWs2812 led0(0,200);
 int previousVolumeState = 0;
+void fadeToBlack(int ledNo, byte fadeValue) {
+    uint32_t oldColor;
+    uint8_t r, g, b;
+    int value;
+    oldColor = strip.getPixelColor(ledNo);
+    r = (oldColor & 0x00ff0000UL) >> 16;
+    g = (oldColor & 0x0000ff00UL) >> 8;
+    b = (oldColor & 0x000000ffUL);
+    r=(r<=10)? 0 : (int) r-(r*fadeValue/256);
+    g=(g<=10)? 0 : (int) g-(g*fadeValue/256);
+    b=(b<=10)? 0 : (int) b-(b*fadeValue/256);
+    strip.setPixelColor(ledNo, r,g,b);
+}
+
+void meteorRain(byte red, byte green, byte blue, byte meteorSize, byte meteorTrailDecay, boolean meteorRandomDecay, int SpeedDelay) {  
+  for(int i = 0; i < LED_COUNT+LED_COUNT; i++) {// fade brightness all LEDs one step
+    for(int j=0; j<LED_COUNT; j++) {
+      if( (!meteorRandomDecay) || (random(10)>5) ) {
+        fadeToBlack(j, meteorTrailDecay );        
+      }
+    }
+    for(int j = 0; j < meteorSize; j++) {// draw meteor
+      if( ( i-j <LED_COUNT) && (i-j>=0) ) {
+        strip.setPixelColor(i-j, red, green, blue);
+        
+      }
+    }
+    strip.show();
+    delay(SpeedDelay);
+  }
+}
 
 void loop() {
   unsigned long currentMillis = millis();
@@ -432,9 +464,11 @@ void loop() {
 //       } 
 //     }
 // }
-  // initialization(millis());
-  // fadeUsingCosine(millis());
+  initialization(millis());
+  fadeUsingCosine(millis());
   blowHearts(millis());
+  if(currentMillis >= 33200 && currentMillis <= 34000)
+    meteorRain(151,4,224,20, 30, true, 10); //r,g,b,meteorSize, byte meteorTrailDecay
   if( millis()-previousVolumeState > 1000 ){
      previousVolumeState = millis();
      if( ((int) 27 * analogRead(A0) / 1024) != currentVolume){
