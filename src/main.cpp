@@ -17,7 +17,7 @@
 #endif
 
 #define LED_PIN    5
-#define LED_COUNT 11
+#define LED_COUNT 66 //66
 
 
 // Declare our NeoPixel strip object:
@@ -31,15 +31,20 @@ void printDetail(uint8_t type, int value);
   unsigned long previousStarFadeMillis = 0;
   bool starState = false;
   int rainDropCirclePreviousMillis=0;
-  int boxLayer3[2] = {8,7};
-  int boxLayer2[2] = {5,4};
-  int boxLayer1[2] = {2,1};
+  int boxLayer3[12] = {42,43,44,45,46,47,48,49,50,51,52,53};
+  int boxLayer2[12] = {21,22,23,24,25,26,27,28,29,30,31,32};
+  int boxLayer1[12] = {0,1,2,3,4,5,6,7,8,9,10,11};
   int boxLayerCount = 3;
-  int boxHeart3[2] = {8,7};
-  int boxHeart2[2] = {5,4};
-  int boxHeart1[2] = {2,1};
+  int boxHeart3[9] = {54,55,56,57,58,59,60,61,62};
+  int boxHeart2[9] = {33,34,35,36,37,38,39,40,41};
+  int boxHeart1[9] = {12,13,14,15,16,17,18,19,20};
   int boxHeartCount = 3;
-void fadeUsingCosine(unsigned long currentMillis){
+  int allHeart[36] = {0,1,2,3,4,5,6,7,8,9,10,11,
+                      21,22,23,24,25,26,27,28,29,30,31,32,
+                      42,43,44,45,46,47,48,49,50,51,52,53};
+
+
+void fadeUsingCosine(unsigned long currentMillis){ //glow the Star*
   // if( (currentMillis >= 12900) && currentMillis<=20000 ){
   //     color = 128+127*cos(2*PI/1000*currentMillis);
   //     Serial.println(currentMillis);
@@ -49,9 +54,9 @@ void fadeUsingCosine(unsigned long currentMillis){
 
  if( (currentMillis >= 12700) && currentMillis<=20000 ){
   if( (currentMillis >= 13000 && currentMillis <= 14000) || (currentMillis >= 16000 && currentMillis <= 17000)){ // if 13000, show rainDownCircle
-   if( (currentMillis-rainDropCirclePreviousMillis) > 200 ){
+   if( (currentMillis-rainDropCirclePreviousMillis) > 200 ){ //outer layer rainDropCircle effect
       rainDropCirclePreviousMillis = currentMillis;
-      for(int i=0; i<=1; i++){ //show
+      for(int i=0; i<=8; i++){ //show
         if(boxLayerCount==3){
           strip.setPixelColor(boxLayer3[i], strip.Color(255, 255, 0));
         }else if(boxLayerCount==2){
@@ -61,7 +66,7 @@ void fadeUsingCosine(unsigned long currentMillis){
         }
       }
         strip.show();
-      for(int m=0; m<=1; m++){  //hide
+      for(int m=0; m<=8; m++){  //hide
         if(boxLayerCount==2){
           strip.setPixelColor(boxLayer3[m], strip.Color(0, 0, 0));
         }else if(boxLayerCount==1){
@@ -83,7 +88,9 @@ void fadeUsingCosine(unsigned long currentMillis){
       if(starState==false){
         Serial.println(color);
         color+=10;        
-        strip.setPixelColor(10, strip.Color(color, color, 0));        
+        strip.setPixelColor(strip.numPixels()-1, strip.Color(color, color, 0));        
+        strip.setPixelColor(strip.numPixels()-2, strip.Color(color, color, 0));        
+        strip.setPixelColor(strip.numPixels()-3, strip.Color(color, color, 0));        
         strip.show(); 
         if(color>=255){
           starState=true;
@@ -91,7 +98,9 @@ void fadeUsingCosine(unsigned long currentMillis){
       }
       if(starState==true){
         color-=10;        
-        strip.setPixelColor(10, strip.Color(color, color, 0));        
+        strip.setPixelColor(strip.numPixels()-1, strip.Color(color, color, 0));        
+        strip.setPixelColor(strip.numPixels()-2, strip.Color(color, color, 0));        
+        strip.setPixelColor(strip.numPixels()-3, strip.Color(color, color, 0));        
         strip.show(); 
         if(color<=55){
           starState=false;
@@ -112,6 +121,8 @@ void fadeUsingCosine(unsigned long currentMillis){
 }
 
  unsigned long previousBlowMillis = 0;
+ unsigned long previousRandomSparkle = 0;
+ unsigned long previousRadomDelay = 0;
 int blowColor = 50;
 bool glowChange = false;
 bool blowState = false;
@@ -121,7 +132,22 @@ void blowHearts(unsigned long currentMillis){
     blowState=false;
     blowColor=50;
   }
-  if( (currentMillis >= 20000 && currentMillis <= 21000) ||
+      //random sparkle 
+    if( currentMillis >= 19800 && currentMillis <= 31000){
+      if((millis()-previousRandomSparkle) > 300){
+        previousRandomSparkle = millis();
+        int rand = random(0,36);
+        strip.setPixelColor(allHeart[rand],255, 255, 255);
+        strip.show();
+        if((millis()-previousRadomDelay) > 300){
+           previousRadomDelay = millis();
+          strip.setPixelColor(allHeart[rand],0,0,0);
+          strip.show();
+        }
+      }
+    }
+
+  if( (currentMillis >= 19800 && currentMillis <= 21000) ||
       (currentMillis >= 23300 && currentMillis <= 24300) ||
       (currentMillis >= 27000 && currentMillis <= 28000) ||
       (currentMillis >= 30500 && currentMillis <= 31500) ){ 
@@ -131,7 +157,7 @@ void blowHearts(unsigned long currentMillis){
         if(blowState==false){
           blowColor+=10;      
           if(glowChange && blowColor <=255){ //glow red heart
-            for(int i=0; i<=1; i++){ 
+            for(int i=0; i<=8; i++){ 
               if(boxHeartCount==2){
                 strip.setPixelColor(boxHeart3[i], strip.Color(blowColor, 0, 0));
               }else if(boxHeartCount==1){
@@ -146,7 +172,7 @@ void blowHearts(unsigned long currentMillis){
             }
             // strip.setPixelColor(5, strip.Color(blowColor,0, 0));//red 
           }else if(glowChange==false){ //increase white
-            for(int i=0; i<=1; i++){ 
+            for(int i=0; i<=8; i++){ 
               if(boxHeartCount==3){
                 strip.setPixelColor(boxHeart3[i], strip.Color(blowColor, blowColor, blowColor));
               }else if(boxHeartCount==2){
@@ -170,7 +196,7 @@ void blowHearts(unsigned long currentMillis){
         }
         if(blowState==true){//decrease white
           blowColor-=10;
-            for(int i=0; i<=1; i++){ 
+            for(int i=0; i<=8; i++){ 
               if(boxHeartCount==3){
                 strip.setPixelColor(boxHeart3[i], strip.Color(blowColor, blowColor, blowColor));
               }else if(boxHeartCount==2){
@@ -196,6 +222,8 @@ void blowHearts(unsigned long currentMillis){
 }
 int previousMillis = 0;
 int i = 0;
+bool indexState = false;
+int indexColor = 30;
 void initialization(unsigned long currentMillis){
   uint32_t white = strip.Color(255, 255, 255);
   uint32_t yellow = strip.Color(255, 255, 0);
@@ -204,21 +232,21 @@ void initialization(unsigned long currentMillis){
   if( (currentMillis == 3500) ){ // delay(1000);
   Serial.print("milli 1000!!!:");
   Serial.println(millis());
-  strip.setPixelColor(3, yellow);
+  strip.setPixelColor(0, white);
   strip.show();
   }
   if(millis() >= 5000){ //delay(4000);
-    if( ( currentMillis-previousMillis > 300) && i<=strip.numPixels()){
-      previousMillis = currentMillis;
-      strip.setPixelColor(i, white);
-      strip.show();
-      strip.setPixelColor(i-1, strip.Color(0, 0, 0));
-      strip.show();
-      i++;
-      Serial.println(i);
-    }
+    if( ( currentMillis-previousMillis > 115) && i<=strip.numPixels()-3){
+        previousMillis = currentMillis;
+        if(i != strip.numPixels()-3)
+          strip.setPixelColor(i, white);
+        strip.show();
+        strip.setPixelColor(i-1, strip.Color(0, 0, 0));
+        strip.show();
+        i++;
+        Serial.println(i);
+      }
   }
-
 }
 
 bool ledState1 = false;             // ledState used to set the LED
@@ -250,6 +278,8 @@ void setup() {
     myDFPlayer.volume(currentVolume);
     myDFPlayer.play(1); //play music
   }
+
+
 }
 
 void colorWipe(uint32_t color, int wait) {
@@ -431,14 +461,14 @@ void fadeToBlack(int ledNo, byte fadeValue) {
 }
 
 void meteorRain(byte red, byte green, byte blue, byte meteorSize, byte meteorTrailDecay, boolean meteorRandomDecay, int SpeedDelay) {  
-  for(int i = 0; i < LED_COUNT+LED_COUNT; i++) {// fade brightness all LEDs one step
-    for(int j=0; j<LED_COUNT; j++) {
+  for(int i = (LED_COUNT-3)+(LED_COUNT-3); i > 0 ; i--) {// fade brightness all LEDs one step
+    for(int j=0; j<(LED_COUNT-3); j++) {
       if( (!meteorRandomDecay) || (random(10)>5) ) {
         fadeToBlack(j, meteorTrailDecay );        
       }
     }
     for(int j = 0; j < meteorSize; j++) {// draw meteor
-      if( ( i-j <LED_COUNT) && (i-j>=0) ) {
+      if( ( i-j <(LED_COUNT-3)) && (i-j>=0) ) {
         strip.setPixelColor(i-j, red, green, blue);
         
       }
@@ -447,7 +477,43 @@ void meteorRain(byte red, byte green, byte blue, byte meteorSize, byte meteorTra
     delay(SpeedDelay);
   }
 }
+void TwinkleRandom(int Count, int SpeedDelay, boolean OnlyOne) {
+  for (int i=0; i<20; i++) {
+      strip.setPixelColor(random(LED_COUNT),random(0,255),random(0,255),random(0,255));
+     strip.show();
+     if(i==20)
+     strip.clear();
+   }
+  delay(SpeedDelay);
+}
+void Sparkle(){
+  int Pixel = random(0,63);
+  strip.setPixelColor(Pixel,random(255), random(255), random(255));
+  strip.show();
+  delay(50);
+  strip.setPixelColor(Pixel,0,0,0);
+  strip.show();
+}
 
+unsigned long previousColorWipe = 0;
+void colorWipe(unsigned long currentMillis) { //byte r, byte g, byte b
+   int r = random(255);
+   int g = random(255);
+   int b = random(255);
+    if((currentMillis-previousColorWipe) > 850){
+      previousColorWipe = currentMillis;
+      for(uint16_t i=0; i<LED_COUNT-3; i++) {
+          strip.setPixelColor(i, r, g, b);
+          strip.show();
+        }
+    }
+
+  // for(uint16_t i=0; i<LED_COUNT-3; i++) {
+  //   strip.setPixelColor(i, r, g, b);
+  //   strip.show();
+  //   delay(20);
+  // }
+}
 void loop() {
   unsigned long currentMillis = millis();
 // if(currentMillis>=4000 &&currentMillis<=21000){
@@ -467,18 +533,27 @@ void loop() {
   initialization(millis());
   fadeUsingCosine(millis());
   blowHearts(millis());
-  if(currentMillis >= 33200 && currentMillis <= 34000)
-    meteorRain(151,4,224,20, 30, true, 10); //r,g,b,meteorSize, byte meteorTrailDecay
-  if( millis()-previousVolumeState > 1000 ){
-     previousVolumeState = millis();
-     if( ((int) 27 * analogRead(A0) / 1024) != currentVolume){
-      //  myDFPlayer.volume(map(analogRead(A0),0,1023,0,27));
-        myDFPlayer.volume(((int) 27 * analogRead(A0) / 1024));
-        currentVolume = myDFPlayer.readVolume();
-        Serial.print("changed volume:");
-        Serial.println(currentVolume);
-     }
-  }
+  if(currentMillis >= 31700 && currentMillis <= 33000) // 33000 - 34000 |||| 3000 180000
+    meteorRain(255,0,255,10, 50, true, 6); //r,g,b,meteorSize, byte meteorTrailDecay, delay
+  if(currentMillis >= 33000 && currentMillis <= 53000)
+colorWipe(millis()); //150,80,60
+  //   Sparkle();
+// TwinkleRandom(20, 100, false);
+
+
+
+
+  // if( millis()-previousVolumeState > 1000 ){
+  //    previousVolumeState = millis();
+  //    if( ((int) 27 * analogRead(A0) / 1024) != currentVolume){
+  //     //  myDFPlayer.volume(map(analogRead(A0),0,1023,0,27));
+  //       myDFPlayer.volume(((int) 27 * analogRead(A0) / 1024));
+  //       currentVolume = myDFPlayer.readVolume();
+  //       Serial.print("changed volume:");
+  //       Serial.println(currentVolume);
+  //    }
+  // }
+  
   // if( ((int) 28 * analogRead(A0) / 1024) != myDFPlayer.readVolume() ){
   //   myDFPlayer.volume(((int) 28 * analogRead(A0) / 1024));
   // }
