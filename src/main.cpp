@@ -18,7 +18,7 @@
 
 #define LED_PIN    5
 #define LED_COUNT 66 //66
-
+#define Gate 9
 
 // Declare our NeoPixel strip object:
 Adafruit_NeoPixel strip(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800);
@@ -298,6 +298,9 @@ int currentVolume = 0;
 void setup() {
   Serial.begin(115200);//115200
   mySoftwareSerial.begin(9600);
+  pinMode(Gate,OUTPUT);
+  digitalWrite(Gate,LOW); //turn off fan first
+
   pinMode(A0, INPUT);
   Serial.println("Starting..."); 
   Serial.println(F("DFRobot DFPlayer Mini Demo"));
@@ -618,7 +621,7 @@ void multiColorWipe(unsigned long currentMillis) {
     previousmultiColorWipe = currentMillis;
     for(int i=0; i<LED_COUNT-3; i++) { 
       strip.setPixelColor(i, random(255),random(255),random(255));        
-      delay(5);
+      delay(1);
     }
       strip.show();
 
@@ -656,6 +659,11 @@ void loop() {
 //       } 
 //     }
 // }
+
+delay(1000);
+digitalWrite(Gate,HIGH);
+delay(1000);
+digitalWrite(Gate,LOW);
 
   initialization(millis());
   fadeUsingCosine(millis());
