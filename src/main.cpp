@@ -87,7 +87,7 @@ void fadeUsingCosine(unsigned long currentMillis){ //glow the Star*
         }
       }
     }
-    if( currentMillis >= 13200 && currentMillis <= 15500){ //glow secondLayer
+    if( currentMillis >= 13500 && currentMillis <= 15500){ //glow secondLayer
       if( currentMillis-rainDropC2Previous > 15){
         rainDropC2Previous=currentMillis;
         if(secondState==false){ //turn on
@@ -109,7 +109,7 @@ void fadeUsingCosine(unsigned long currentMillis){ //glow the Star*
         }
       }
     }
-    if( currentMillis >= 13400 && currentMillis <= 16500){ //glow firstLayer
+    if( currentMillis >= 14000 && currentMillis <= 16000){ //glow firstLayer
       if( currentMillis-rainDropC1Previous > 15){
         rainDropC1Previous=currentMillis;
         if(firstState==false){ //turn on
@@ -173,13 +173,13 @@ void blowHearts(unsigned long currentMillis){
       blowColor=50;
     }
       
-  if( currentMillis >= 19800 && currentMillis <= 31000){ //random sparkle 
-    if((millis()-previousRandomSparkle) > 150){
+  if( currentMillis >= 17000 && currentMillis <= 31000){ //random sparkle //19800-31000
+    if((millis()-previousRandomSparkle) > 100){//150
       previousRandomSparkle = millis();
       int rand = random(0,36);
       strip.setPixelColor(allCorner[rand],255, 255, 255);
       strip.show();
-      if((millis()-previousRadomDelay) > 150){
+      if((millis()-previousRadomDelay) > 100){//150
         previousRadomDelay = millis();
         strip.setPixelColor(allCorner[rand],0,0,0);
         strip.show();
@@ -187,10 +187,10 @@ void blowHearts(unsigned long currentMillis){
     }
   }
 
-  if( (currentMillis >= 19800 && currentMillis <= 21000) ||
-      (currentMillis >= 23300 && currentMillis <= 24300) ||
-      (currentMillis >= 27000 && currentMillis <= 28000) ||
-      (currentMillis >= 30500 && currentMillis <= 31500) ){ 
+  if( (currentMillis >= 19700 && currentMillis <= 21000) || //19800-21000
+      (currentMillis >= 23100 && currentMillis <= 24300) || //23300-24300
+      (currentMillis >= 26700 && currentMillis <= 28000) || //27000-28000
+      (currentMillis >= 30200 && currentMillis <= 31500) ){ 
 
     if( (millis()-previousBlowMillis) > 15){ //glow from white to red
         previousBlowMillis = millis();
@@ -316,7 +316,7 @@ void setup() {
     strip.show();            // Turn OFF all pixels ASAP
     Serial.println(F("DFPlayer Mini online."));
     // currentVolume = map(analogRead(A0),0,1023,0,27);
-    myDFPlayer.volume(15);//15
+    myDFPlayer.volume(18);//15
     myDFPlayer.play(1); //play music
   }
 }
@@ -340,7 +340,7 @@ void rainbow(int wait) {
   // Color wheel has a range of 65536 but it's OK if we roll over, so
   // just count from 0 to 5*65536. Adding 256 to firstPixelHue each time
   // means we'll make 5*65536/256 = 1280 passes through this outer loop:
-  for(long firstPixelHue = 0; firstPixelHue < 5*65536; firstPixelHue += 256) {
+  for(long firstPixelHue = 0; firstPixelHue < 5*65536; firstPixelHue += 768) {//256,512,
     for(int i=0; i<strip.numPixels(); i++) { // For each pixel in strip...
       // Offset pixel hue by an amount to make one full revolution of the
       // color wheel (range of 65536) along the length of the strip
@@ -491,12 +491,12 @@ void fadeToBlack(int ledNo, byte fadeValue) {
 }
 
 unsigned long previousFadeAllMilli = 0;
-void fadeAllToBlack(unsigned long currentMillis){//int delayTime
+void fadeAllToBlack(unsigned long currentMillis,int delay){//int delayTime
   // for(int j=0; j<(LED_COUNT); j++) { 
     if( (currentMillis-previousFadeAllMilli) > 2){
         previousFadeAllMilli = currentMillis;
       if( (random(10)>5) ) {
-        fadeToBlack(random(LED_COUNT), 50 );  
+        fadeToBlack(random(LED_COUNT), delay );  
         strip.show();    
         // delay(delayTime);
       }
@@ -522,7 +522,7 @@ void meteorRain(byte red, byte green, byte blue, byte meteorSize, byte meteorTra
   }
 }
 
-void meteorRainUp(byte red, byte green, byte blue, byte meteorSize, byte meteorTrailDecay, boolean meteorRandomDecay, int SpeedDelay) {  
+void meteorRainUp(byte meteorSize, byte meteorTrailDecay, boolean meteorRandomDecay, int SpeedDelay) {  
   for(int i = 0; i <(LED_COUNT-3)+(LED_COUNT-3) ; i++) {// fade brightness all LEDs one step
     for(int j=0; j<(LED_COUNT-3); j++) {
       if( (!meteorRandomDecay) || (random(10)>5) ) {
@@ -531,7 +531,7 @@ void meteorRainUp(byte red, byte green, byte blue, byte meteorSize, byte meteorT
     }
     for(int j = 0; j < meteorSize; j++) {// draw meteor
       if( ( i-j <(LED_COUNT-3)) && (i-j>=0) ) {
-        strip.setPixelColor(i-j, red, green, blue);
+        strip.setPixelColor(i-j, 222, 33, 212);
         
       }
     }
@@ -618,10 +618,10 @@ void multiColorWipe(unsigned long currentMillis) {
     previousmultiColorWipe = currentMillis;
     for(int i=0; i<LED_COUNT-3; i++) { 
       strip.setPixelColor(i, random(255),random(255),random(255));        
-      strip.show();
-      delay(1);
+      delay(5);
     }
-  // fadeAllToBlack(0);
+      strip.show();
+
   }
 }
 
@@ -662,16 +662,14 @@ void loop() {
   blowHearts(millis());
   if(currentMillis >= 31500 && currentMillis <= 32850) 
     meteorRain(255,255,0,8, 10, true, 1); //r,g,b,meteorSize, byte meteorTrailDecay,bool, delay
-  if(currentMillis >= 33000 && currentMillis <= 52500){
+  if(currentMillis >= 33000 && currentMillis <= 52500)
     colorWipe(millis());
-    // Sparkle(millis());
-  }
   if(currentMillis>=53500 && currentMillis<=59500)
-    fadeAllToBlack(millis());
+    fadeAllToBlack(millis(),50);
   if(currentMillis>=60000 && currentMillis<=66000)
      SnowSparkleMultiple(100, random(100,400));
   if(currentMillis>=66000 && currentMillis<=67000) //  6600-67500
-    meteorRainUp(random(255),random(255),random(255),15, 15, true, 15);//20
+    meteorRainUp(15, 15, true, 15);//20
   if(currentMillis>=68500){ //light the star
     strip.setPixelColor(LED_COUNT-1, strip.Color(255, 255, 0));
     strip.setPixelColor(LED_COUNT-2, strip.Color(255, 255, 0));
@@ -681,18 +679,18 @@ void loop() {
  if(currentMillis>=70400 && currentMillis<=77500)
     multiColorWipe(millis());
 if(currentMillis>=78000)
- fadeAllToBlack(millis());
+ fadeAllToBlack(millis(),5);
 
-  //Volume Controll
+  // Volume Controll
   // if( millis()-previousVolumeState > 1000 ){
   //    previousVolumeState = millis();
-    //  if( ((int) 27 * analogRead(A0) / 1024) != currentVolume){
-      //  myDFPlayer.volume(map(analogRead(A0),0,1023,0,27));
-        // myDFPlayer.volume(((int) 27 * analogRead(A0) / 1024));
-    //     currentVolume = myDFPlayer.readVolume();
-    //     Serial.print("changed volume:");
-    //     Serial.println(myDFPlayer.readVolume());
-    //  }
+  //    if( ((int) 27 * analogRead(A0) / 1024) != currentVolume){
+  //      myDFPlayer.volume(map(analogRead(A0),0,1023,0,27));
+  //       myDFPlayer.volume(((int) 27 * analogRead(A0) / 1024));
+  //       currentVolume = myDFPlayer.readVolume();
+  //       Serial.print("changed volume:");
+  //       Serial.println(myDFPlayer.readVolume());
+  //    }
   // }
   
   // if( ((int) 28 * analogRead(A0) / 1024) != myDFPlayer.readVolume() ){
@@ -702,8 +700,6 @@ if(currentMillis>=78000)
   //  if (myDFPlayer.available()) {
   //   printDetail(myDFPlayer.readType(), myDFPlayer.read()); //Print the detail message from DFPlayer to handle different errors and states.
   // }
-// led5.Update(200);
-// led2.Update();
 
 //now it  worked! wrong stateMachine before
   // if( (millis()-previousMillis) > 500){
@@ -719,11 +715,11 @@ if(currentMillis>=78000)
   // theaterChase(strip.Color(127,   0,   0), 500); // Red, half brightness
   // theaterChase(strip.Color(  0,   0, 127), 500); // Blue, half brightness
 
-  // rainbow(10);             // Flowing rainbow cycle along the whole strip
+  // rainbow(1);             // Flowing rainbow cycle along the whole strip
   // theaterChaseRainbow(500); // Rainbow-enhanced theaterChase variant
 
   // colorFade(255, 0, 0, 20); // fade into red
-  // colorFade(0, 255, 0, 20); // fade into red
+  // colorFade(0, 255, 0, 2); // fade into red
   // colorFade(150, 150, 150, 300); // and then into white
 
 }
