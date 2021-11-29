@@ -19,6 +19,9 @@
 #define LED_PIN    5
 #define LED_COUNT 66 //66
 #define Gate 9
+int Sound_Pin=2;
+int threshold=1;
+
 
 // Declare our NeoPixel strip object:
 Adafruit_NeoPixel strip(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800);
@@ -26,8 +29,7 @@ SoftwareSerial mySoftwareSerial(10, 11); // RX, TX
 DFRobotDFPlayerMini myDFPlayer;
 void printDetail(uint8_t type, int value);
 
-  // int color;
-  int color = 50;
+
   unsigned long previousStarFadeMillis = 0;
   bool starState = false;
   int boxLayer3[12] = {42,43,44,45,46,47,48,49,50,51,52,53};
@@ -44,7 +46,7 @@ void printDetail(uint8_t type, int value);
 int allHeart[27] ={12,13,14,15,16,17,18,19,20,
                   33,34,35,36,37,38,39,40,41,
                   54,55,56,57,58,59,60,61,62};
-
+int color = 50;
 int rainDropC3 = 40;
 int rainDropC2 = 40;
 int rainDropC1 = 40;
@@ -133,10 +135,9 @@ void fadeUsingCosine(unsigned long currentMillis){ //glow the Star*
     }
 
 
-    if( (millis()-previousStarFadeMillis) > 40){ //and glow the Star*
+  if( (millis()-previousStarFadeMillis) > 40){ //and glow the Star*
       previousStarFadeMillis = millis();
       if(starState==false){
-        Serial.println(color);
         color+=10;        
         strip.setPixelColor(strip.numPixels()-1, strip.Color(color, color, 0));        
         strip.setPixelColor(strip.numPixels()-2, strip.Color(color, color, 0));        
@@ -167,7 +168,7 @@ int blowColor = 50;
 bool glowChange = false;
 bool blowState = false;
 void blowHearts(unsigned long currentMillis){
-  if(currentMillis == 21000 || currentMillis == 25000 || currentMillis == 29000){
+  if(currentMillis == 21000 || currentMillis == 25000 || currentMillis == 29000){ //restart variables every: 21000, 25000 and 29000
       glowChange=false;
       blowState=false;
       blowColor=50;
@@ -204,7 +205,7 @@ void blowHearts(unsigned long currentMillis){
                 strip.setPixelColor(boxHeart2[i], strip.Color(blowColor, 0, 0));
               }else if(boxHeartCount==0){
                 strip.setPixelColor(boxHeart1[i], strip.Color(blowColor, 0, 0));
-              }else if(boxHeartCount==-1){
+              }else if(boxHeartCount==-1){ //glow all 3 red hearts
                 strip.setPixelColor(boxHeart3[i], strip.Color(blowColor, 0, 0));
                 strip.setPixelColor(boxHeart2[i], strip.Color(blowColor, 0, 0));
                 strip.setPixelColor(boxHeart1[i], strip.Color(blowColor, 0, 0));
@@ -300,6 +301,8 @@ void setup() {
   mySoftwareSerial.begin(9600);
   pinMode(Gate,OUTPUT);
   digitalWrite(Gate,LOW); //turn off fan first
+  pinMode(Sound_Pin,INPUT);
+
 
   pinMode(A0, INPUT);
   Serial.println("Starting..."); 
@@ -554,42 +557,37 @@ void TwinkleRandom(int Count, int SpeedDelay, boolean OnlyOne) {
 }
 
 unsigned long previousSparkleMilli= 0;
-void Sparkle(unsigned long currentMillis){ //white sparkle
-  // int Pixel = random(0,LED_COUNT-3);
-  // strip.setPixelColor(Pixel,random(255), random(255), random(255));
-  // strip.show();
-  // delay(100);
-  // strip.setPixelColor(Pixel,0,0,0);
-  // strip.show();
-
-  if( currentMillis >= 19800 && currentMillis <= 31000){ //random sparkle 
-    if((millis()-previousSparkleMilli) > 150){
-      previousSparkleMilli = millis();
-      int rand = random(0,LED_COUNT-3);
-      strip.setPixelColor(allCorner[rand],255, 255, 255);
-      strip.show();
-      if((millis()-previousSparkleMilli) > 150){
-        previousSparkleMilli = millis();
-        strip.setPixelColor(allCorner[rand],0,0,0);
-        strip.show();
-      }
-    }
+void SparkleCorners(){ //white sparkle
+  if((millis()-previousSparkleMilli) > 100){
+    previousSparkleMilli = millis();
+    int rand = random(0,36);
+    strip.setPixelColor(allCorner[rand],random(255), random(255), random(255));
+    strip.show();
   }
-
 }
 
-void SnowSparkle(byte red, byte green, byte blue, int SparkleDelay, int SpeedDelay) {
+unsigned long previousSparkleHeartMilli= 0;
+void SparkleHeart(){ //white sparkle
+  if((millis()-previousSparkleHeartMilli) > 100){
+    previousSparkleHeartMilli = millis();
+    int rand = random(0,27);
+    strip.setPixelColor(allHeart[rand],255, 0, 0);
+    strip.show();
+  }
+}
+
+void SnowSparkle(int SparkleDelay, int SpeedDelay) {
   int Pixel = random(LED_COUNT-3);
   strip.setPixelColor(Pixel,0xff,0xff,0xff);
   strip.show();
   delay(SparkleDelay);
-  strip.setPixelColor(Pixel,red,green,blue);
+  strip.setPixelColor(Pixel,255,255,255);
   strip.show();
   delay(SpeedDelay);
 
 }
 
-void SnowSparkleMultiple(int SparkleDelay, int SpeedDelay){
+void SnowSparkleMultiple(int SpeedDelay){
   for (int i=0; i<10; i++) {
     strip.setPixelColor(random(LED_COUNT-3),random(255),random(255),random(255));
     strip.show();
@@ -621,10 +619,9 @@ void multiColorWipe(unsigned long currentMillis) {
     previousmultiColorWipe = currentMillis;
     for(int i=0; i<LED_COUNT-3; i++) { 
       strip.setPixelColor(i, random(255),random(255),random(255));        
-      delay(1);
+      // delay(1);
     }
       strip.show();
-
   }
 }
 
@@ -640,6 +637,51 @@ void yellowDotGoesToStar(){
       strip.setPixelColor(i, strip.Color(255, 255, 0));
       strip.show();
     }
+  }
+}
+
+void meteorRainUpFinal(byte meteorSize, byte meteorTrailDecay, boolean meteorRandomDecay, int SpeedDelay) {  
+  for(int i = 0; i <(27)+(27) ; i++) {// fade brightness all LEDs one step
+    for(int j=0; j<(27); j++) {
+      if( (!meteorRandomDecay) || (random(10)>5) ) {
+        fadeToBlack(allHeart[j], meteorTrailDecay );        
+      }
+    }
+    for(int j = 0; j < meteorSize; j++) {// draw meteor
+      if( ( i-j <(27)) && (i-j>=0) ) {
+        strip.setPixelColor(allHeart[i-j], 255, 255, 255);
+        
+      }
+    }
+    strip.show();
+    delay(SpeedDelay);
+  }
+}
+
+int starColor = 50;
+void glowStar(unsigned long currentMillis){
+  if( (millis()-previousStarFadeMillis) > 10){ //glow the Star*
+      previousStarFadeMillis = millis();
+      if(starState==false){
+        starColor+=10;        
+        strip.setPixelColor(strip.numPixels()-1, strip.Color(starColor, starColor, starColor));        
+        strip.setPixelColor(strip.numPixels()-2, strip.Color(starColor, starColor, starColor));        
+        strip.setPixelColor(strip.numPixels()-3, strip.Color(starColor, starColor, starColor));        
+        strip.show(); 
+        if(starColor>=255){
+          starState=true;
+        }
+      }
+      if(starState==true){
+        starColor-=10;        
+        strip.setPixelColor(strip.numPixels()-1, strip.Color(starColor, starColor, starColor));        
+        strip.setPixelColor(strip.numPixels()-2, strip.Color(starColor, starColor, starColor));        
+        strip.setPixelColor(strip.numPixels()-3, strip.Color(starColor, starColor, starColor));        
+        strip.show(); 
+        if(starColor<=55){
+          starState=false;
+        }
+      }
   }
 }
 
@@ -660,34 +702,55 @@ void loop() {
 //     }
 // }
 
-delay(1000);
-digitalWrite(Gate,HIGH);
-delay(1000);
-digitalWrite(Gate,LOW);
+// if(digitalRead(Sound_Pin) == threshold){
+//   for(int i=0; i<=20; i++){
+//     strip.setPixelColor(i, strip.Color(255,255,255));
+//   }
+//     strip.show();
+// }else{
+//   for(int i=0; i<=20; i++){
+//     strip.setPixelColor(i, strip.Color(0,0,0));
+//   }
+//     strip.show();
+// }
 
   initialization(millis());
   fadeUsingCosine(millis());
   blowHearts(millis());
   if(currentMillis >= 31500 && currentMillis <= 32850) 
     meteorRain(255,255,0,8, 10, true, 1); //r,g,b,meteorSize, byte meteorTrailDecay,bool, delay
-  if(currentMillis >= 33000 && currentMillis <= 52500)
+  if(currentMillis >= 33000 && currentMillis <= 52500){
     colorWipe(millis());
+    if(currentMillis >= 33000 && currentMillis <= 43000)//open the gate for 10 seconds
+      digitalWrite(Gate,HIGH);
+    if(currentMillis >= 38000)//close the gate
+      digitalWrite(Gate,LOW);
+  }
   if(currentMillis>=53500 && currentMillis<=59500)
     fadeAllToBlack(millis(),50);
   if(currentMillis>=60000 && currentMillis<=66000)
-     SnowSparkleMultiple(100, random(100,400));
-  if(currentMillis>=66000 && currentMillis<=67000) //  6600-67500
+     SnowSparkleMultiple(random(10,400));
+  if(currentMillis>=66000 && currentMillis<=67000) //  6600-67000
     meteorRainUp(15, 15, true, 15);//20
-  if(currentMillis>=68500){ //light the star
+  if(currentMillis>=68200 && currentMillis<=77500){ //68200-77500  light the star
     strip.setPixelColor(LED_COUNT-1, strip.Color(255, 255, 0));
     strip.setPixelColor(LED_COUNT-2, strip.Color(255, 255, 0));
     strip.setPixelColor(LED_COUNT-3, strip.Color(255, 255, 0));
     strip.show();
   }
- if(currentMillis>=70400 && currentMillis<=77500)
+  if(currentMillis>=70300 && currentMillis<=77300)//70300-77000 //multiColorWipe
     multiColorWipe(millis());
-if(currentMillis>=78000)
- fadeAllToBlack(millis(),5);
+  if(currentMillis>=77400 && currentMillis<=80000) // clear all
+    strip.clear();
+  if(currentMillis>=80500 && currentMillis<=82000)//80500-82000
+    meteorRainUpFinal(10, 5, true, 40);
+  if(currentMillis>=82000 && currentMillis<=93000){//82000-90000
+    glowStar(millis());
+    SparkleCorners();
+    SparkleHeart();
+  }
+/////Sound Sensor reactive to music////
+
 
   // Volume Controll
   // if( millis()-previousVolumeState > 1000 ){
@@ -723,7 +786,7 @@ if(currentMillis>=78000)
   // theaterChase(strip.Color(127,   0,   0), 500); // Red, half brightness
   // theaterChase(strip.Color(  0,   0, 127), 500); // Blue, half brightness
 
-  // rainbow(1);             // Flowing rainbow cycle along the whole strip
+  // rainbow(50);             // Flowing rainbow cycle along the whole strip
   // theaterChaseRainbow(500); // Rainbow-enhanced theaterChase variant
 
   // colorFade(255, 0, 0, 20); // fade into red
