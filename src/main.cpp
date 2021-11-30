@@ -19,13 +19,13 @@
 #define LED_PIN    5
 #define LED_COUNT 66 //66
 #define Gate 9
-int Sound_Pin=2;
+int Sound_Pin=A0;//2
 int threshold=1;
 
 
 // Declare our NeoPixel strip object:
 Adafruit_NeoPixel strip(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800);
-SoftwareSerial mySoftwareSerial(10, 11); // RX, TX
+SoftwareSerial mySoftwareSerial(10, 11); // RX(10), TX(11)
 DFRobotDFPlayerMini myDFPlayer;
 void printDetail(uint8_t type, int value);
 
@@ -299,12 +299,11 @@ int currentVolume = 0;
 void setup() {
   Serial.begin(115200);//115200
   mySoftwareSerial.begin(9600);
-  pinMode(Gate,OUTPUT);
+  pinMode(Gate,OUTPUT);//fan gate
+  pinMode(Sound_Pin,INPUT); //sound sensor
   digitalWrite(Gate,LOW); //turn off fan first
-  pinMode(Sound_Pin,INPUT);
+  // pinMode(A0, INPUT);//volume potentiometer
 
-
-  pinMode(A0, INPUT);
   Serial.println("Starting..."); 
   Serial.println(F("DFRobot DFPlayer Mini Demo"));
   Serial.println(F("Initializing DFPlayer ... (May take 3~5 seconds)"));
@@ -322,8 +321,9 @@ void setup() {
     strip.show();            // Turn OFF all pixels ASAP
     Serial.println(F("DFPlayer Mini online."));
     // currentVolume = map(analogRead(A0),0,1023,0,27);
-    myDFPlayer.volume(18);//15
-    myDFPlayer.play(1); //play music
+    myDFPlayer.volume(18);//18
+    // myDFPlayer.play(); //(1)play music
+    myDFPlayer.enableLoopAll(); //loop all mp3 files.
   }
 }
 
@@ -702,18 +702,6 @@ void loop() {
 //     }
 // }
 
-// if(digitalRead(Sound_Pin) == threshold){
-//   for(int i=0; i<=20; i++){
-//     strip.setPixelColor(i, strip.Color(255,255,255));
-//   }
-//     strip.show();
-// }else{
-//   for(int i=0; i<=20; i++){
-//     strip.setPixelColor(i, strip.Color(0,0,0));
-//   }
-//     strip.show();
-// }
-
   initialization(millis());
   fadeUsingCosine(millis());
   blowHearts(millis());
@@ -721,9 +709,9 @@ void loop() {
     meteorRain(255,255,0,8, 10, true, 1); //r,g,b,meteorSize, byte meteorTrailDecay,bool, delay
   if(currentMillis >= 33000 && currentMillis <= 52500){
     colorWipe(millis());
-    if(currentMillis >= 33000 && currentMillis <= 43000)//open the gate for 10 seconds
+    if(currentMillis >= 33000 && currentMillis <= 43000)//33000-43000 open the gate for 10 seconds
       digitalWrite(Gate,HIGH);
-    if(currentMillis >= 38000)//close the gate
+    if(currentMillis >= 43000)//38000 close the gate
       digitalWrite(Gate,LOW);
   }
   if(currentMillis>=53500 && currentMillis<=59500)
@@ -749,7 +737,17 @@ void loop() {
     SparkleCorners();
     SparkleHeart();
   }
-/////Sound Sensor reactive to music////
+///Sound Sensor reactive to music////
+Serial.println(analogRead(Sound_Pin));
+  if(currentMillis>=93000){//93000
+    if(analogRead(Sound_Pin) >= 513){//digitalRead(Sound_Pin) == 1
+        strip.fill(strip.Color(random(255),random(255),random(255)));
+        strip.show();
+    }else{
+        strip.clear();
+        strip.show();
+    }
+  }
 
 
   // Volume Controll
