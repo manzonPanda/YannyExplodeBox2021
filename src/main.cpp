@@ -17,32 +17,34 @@
 #endif
 
 #define LED_PIN    5
-#define LED_COUNT 66 //66
+#define LED_COUNT 39 //66
 #define Gate 9
-int Sound_Pin=A0;//2
+int Sound_Pin=A0;//A0/6
 int threshold=1;
 
 
 // Declare our NeoPixel strip object:
 Adafruit_NeoPixel strip(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800);
-SoftwareSerial mySoftwareSerial(10, 11); // RX(10), TX(11)
+SoftwareSerial mySoftwareSerial(2, 3); // RX(10), TX(11) || 2,3
 DFRobotDFPlayerMini myDFPlayer;
 void printDetail(uint8_t type, int value);
 
 
   unsigned long previousStarFadeMillis = 0;
   bool starState = false;
-  int boxLayer3[12] = {42,43,44,45,46,47,48,49,50,51,52,53};
-  int boxLayer2[12] = {21,22,23,24,25,26,27,28,29,30,31,32};
+  int boxLayer3[12] = {24,25,26,27,28,29,30,31,32,33,34,35}; 
+  int boxLayer2[12] = {12,13,14,15,16,17,18,19,20,21,22,23};
   int boxLayer1[12] = {0,1,2,3,4,5,6,7,8,9,10,11};
   int boxLayerCount = 3;
-  int boxHeart3[9] = {54,55,56,57,58,59,60,61,62};
-  int boxHeart2[9] = {33,34,35,36,37,38,39,40,41};
-  int boxHeart1[9] = {12,13,14,15,16,17,18,19,20};
+  int boxHeart3[9] = {54,55,56,57,58,59,60,61,62};//54,55,56,57,58,59,60,61,62
+  int boxHeart2[9] = {33,34,35,36,37,38,39,40,41};//33,34,35,36,37,38,39,40,41
+  int boxHeart1[9] = {12,13,14,15,16,17,18,19,20};//12,13,14,15,16,17,18,19,20
   int boxHeartCount = 3;
   int allCorner[36] = {0,1,2,3,4,5,6,7,8,9,10,11,
-                      21,22,23,24,25,26,27,28,29,30,31,32,
-                      42,43,44,45,46,47,48,49,50,51,52,53};
+                      12,13,14,15,16,17,18,19,20,21,22,23,
+                      24,25,26,27,28,29,30,31,32,33,34,35};
+
+
 int allHeart[27] ={12,13,14,15,16,17,18,19,20,
                   33,34,35,36,37,38,39,40,41,
                   54,55,56,57,58,59,60,61,62};
@@ -200,32 +202,32 @@ void blowHearts(unsigned long currentMillis){
           if(glowChange && blowColor <=255){ //glow red heart
             for(int i=0; i<=8; i++){ 
               if(boxHeartCount==2){
-                strip.setPixelColor(boxHeart3[i], strip.Color(blowColor, 0, 0));
+                strip.setPixelColor(boxLayer3[i], strip.Color(blowColor, blowColor, 0));
               }else if(boxHeartCount==1){
-                strip.setPixelColor(boxHeart2[i], strip.Color(blowColor, 0, 0));
+                strip.setPixelColor(boxLayer2[i], strip.Color(blowColor, blowColor, 0));
               }else if(boxHeartCount==0){
-                strip.setPixelColor(boxHeart1[i], strip.Color(blowColor, 0, 0));
+                strip.setPixelColor(boxLayer1[i], strip.Color(blowColor, blowColor, 0));
               }else if(boxHeartCount==-1){ //glow all 3 red hearts
-                strip.setPixelColor(boxHeart3[i], strip.Color(blowColor, 0, 0));
-                strip.setPixelColor(boxHeart2[i], strip.Color(blowColor, 0, 0));
-                strip.setPixelColor(boxHeart1[i], strip.Color(blowColor, 0, 0));
+                strip.setPixelColor(boxLayer3[i], strip.Color(blowColor, blowColor, 0));
+                strip.setPixelColor(boxLayer2[i], strip.Color(blowColor, blowColor, 0));
+                strip.setPixelColor(boxLayer1[i], strip.Color(blowColor, blowColor, 0));
               }
             }
             // strip.setPixelColor(5, strip.Color(blowColor,0, 0));//red 
           }else if(glowChange==false){ //glow white heart
             for(int i=0; i<=8; i++){ 
               if(boxHeartCount==3){
-                strip.setPixelColor(boxHeart3[i], strip.Color(blowColor, blowColor, blowColor));
+                strip.setPixelColor(boxLayer3[i], strip.Color(blowColor, blowColor, blowColor));
               }else if(boxHeartCount==2){
-                strip.setPixelColor(boxHeart2[i], strip.Color(blowColor, blowColor, blowColor));
-                strip.setPixelColor(boxHeart3[i], strip.Color(0, 0, 0));
+                strip.setPixelColor(boxLayer2[i], strip.Color(blowColor, blowColor, blowColor));
+                strip.setPixelColor(boxLayer3[i], strip.Color(0, 0, 0));
               }else if(boxHeartCount==1){
-                strip.setPixelColor(boxHeart1[i], strip.Color(blowColor, blowColor, blowColor));
-                strip.setPixelColor(boxHeart2[i], strip.Color(0, 0, 0));
+                strip.setPixelColor(boxLayer1[i], strip.Color(blowColor, blowColor, blowColor));
+                strip.setPixelColor(boxLayer2[i], strip.Color(0, 0, 0));
               }else if(boxHeartCount==0){
-                strip.setPixelColor(boxHeart3[i], strip.Color(blowColor, blowColor, blowColor));
-                strip.setPixelColor(boxHeart2[i], strip.Color(blowColor, blowColor, blowColor));
-                strip.setPixelColor(boxHeart1[i], strip.Color(blowColor, blowColor, blowColor));
+                strip.setPixelColor(boxLayer3[i], strip.Color(blowColor, blowColor, blowColor));
+                strip.setPixelColor(boxLayer2[i], strip.Color(blowColor, blowColor, blowColor));
+                strip.setPixelColor(boxLayer1[i], strip.Color(blowColor, blowColor, blowColor));
               }
             }
             // strip.setPixelColor(5, strip.Color(blowColor, blowColor, blowColor));//white
@@ -239,15 +241,15 @@ void blowHearts(unsigned long currentMillis){
           blowColor-=10;
             for(int i=0; i<=8; i++){ 
               if(boxHeartCount==3){
-                strip.setPixelColor(boxHeart3[i], strip.Color(blowColor, blowColor, blowColor));
+                strip.setPixelColor(boxLayer3[i], strip.Color(blowColor, blowColor, blowColor));
               }else if(boxHeartCount==2){
-                strip.setPixelColor(boxHeart2[i], strip.Color(blowColor, blowColor, blowColor));
+                strip.setPixelColor(boxLayer2[i], strip.Color(blowColor, blowColor, blowColor));
               }else if(boxHeartCount==1){
-                strip.setPixelColor(boxHeart1[i], strip.Color(blowColor, blowColor, blowColor));
+                strip.setPixelColor(boxLayer1[i], strip.Color(blowColor, blowColor, blowColor));
               }else if(boxHeartCount==0){
-                strip.setPixelColor(boxHeart3[i], strip.Color(blowColor, blowColor, blowColor));
-                strip.setPixelColor(boxHeart2[i], strip.Color(blowColor, blowColor, blowColor));
-                strip.setPixelColor(boxHeart1[i], strip.Color(blowColor, blowColor, blowColor));
+                strip.setPixelColor(boxLayer3[i], strip.Color(blowColor, blowColor, blowColor));
+                strip.setPixelColor(boxLayer2[i], strip.Color(blowColor, blowColor, blowColor));
+                strip.setPixelColor(boxLayer1[i], strip.Color(blowColor, blowColor, blowColor));
               }
             }
             // strip.setPixelColor(5, strip.Color(blowColor, blowColor, blowColor)); 
@@ -278,7 +280,7 @@ void initialization(unsigned long currentMillis){
   strip.show();
   }
   if(millis() >= 5000){ //delay(4000);
-    if( ( currentMillis-previousMillis > 115) && i<=strip.numPixels()-3){
+    if( ( currentMillis-previousMillis > 210) && i<=strip.numPixels()-3){
         previousMillis = currentMillis;
         if(i != strip.numPixels()-3)
           strip.setPixelColor(i, white);
@@ -317,11 +319,12 @@ void setup() {
     }
   }else{
     strip.setBrightness(5); // Set BRIGHTNESS (max = 255)
+    strip.clear();
     strip.begin();           // INITIALIZE NeoPixel strip object (REQUIRED)
     strip.show();            // Turn OFF all pixels ASAP
     Serial.println(F("DFPlayer Mini online."));
     // currentVolume = map(analogRead(A0),0,1023,0,27);
-    myDFPlayer.volume(18);//18
+    myDFPlayer.volume(10);//18 || 25,27
     // myDFPlayer.play(); //(1)play music
     myDFPlayer.enableLoopAll(); //loop all mp3 files.
   }
@@ -641,15 +644,15 @@ void yellowDotGoesToStar(){
 }
 
 void meteorRainUpFinal(byte meteorSize, byte meteorTrailDecay, boolean meteorRandomDecay, int SpeedDelay) {  
-  for(int i = 0; i <(27)+(27) ; i++) {// fade brightness all LEDs one step
-    for(int j=0; j<(27); j++) {
+  for(int i = 0; i <(36)+(36) ; i++) {// fade brightness all LEDs one step
+    for(int j=0; j<(36); j++) {
       if( (!meteorRandomDecay) || (random(10)>5) ) {
-        fadeToBlack(allHeart[j], meteorTrailDecay );        
+        fadeToBlack(allCorner[j], meteorTrailDecay );        
       }
     }
     for(int j = 0; j < meteorSize; j++) {// draw meteor
-      if( ( i-j <(27)) && (i-j>=0) ) {
-        strip.setPixelColor(allHeart[i-j], 255, 255, 255);
+      if( ( i-j <(36)) && (i-j>=0) ) {
+        strip.setPixelColor(allCorner[i-j], 255, 255, 255);
         
       }
     }
@@ -687,61 +690,47 @@ void glowStar(unsigned long currentMillis){
 
 void loop() {
   unsigned long currentMillis = millis();
-// if(currentMillis>=4000 &&currentMillis<=21000){
-//   if(currentMillis - previousMillis1 > OnTime1) {
-//       previousMillis1 = currentMillis; // save the last time you blinked the LED 
-//       if(ledState1 == false){
-//         strip.setPixelColor(10, strip.Color(255, 0, 0));//red
-//         strip.show();
-//         ledState1 = true;
-//       }else{
-//         strip.setPixelColor(10, strip.Color(255, 255, 255));//yellow
-//         strip.show();  
-//         ledState1 = false;
-//       } 
-//     }
-// }
 
   initialization(millis());
   fadeUsingCosine(millis());
   blowHearts(millis());
   if(currentMillis >= 31500 && currentMillis <= 32850) 
-    meteorRain(255,255,0,8, 10, true, 1); //r,g,b,meteorSize, byte meteorTrailDecay,bool, delay
+    meteorRain(255,255,0,8, 10, true, 10); //r,g,b,meteorSize, byte meteorTrailDecay,bool, delay
   if(currentMillis >= 33000 && currentMillis <= 52500){
     colorWipe(millis());
-    if(currentMillis >= 33000 && currentMillis <= 43000)//33000-43000 open the gate for 10 seconds
+    if(currentMillis >= 33000 && currentMillis <= 40000)//33000-43000 open the gate for 7 seconds
       digitalWrite(Gate,HIGH);
-    if(currentMillis >= 43000)//38000 close the gate
+    if(currentMillis >= 40000)//38000 close the gate
       digitalWrite(Gate,LOW);
   }
   if(currentMillis>=53500 && currentMillis<=59500)
     fadeAllToBlack(millis(),50);
-  if(currentMillis>=60000 && currentMillis<=66000)
+  if(currentMillis>=63000 && currentMillis<=69000)//60000-66000
      SnowSparkleMultiple(random(10,400));
-  if(currentMillis>=66000 && currentMillis<=67000) //  6600-67000
-    meteorRainUp(15, 15, true, 15);//20
-  if(currentMillis>=68200 && currentMillis<=77500){ //68200-77500  light the star
+  if(currentMillis>=69000 && currentMillis<=70000) //  6600-67000
+    meteorRainUp(15, 15, true, 25);//20
+  if(currentMillis>=72200 && currentMillis<=81500 || currentMillis>=97000){ //68200-77500 || 93000 light the star
     strip.setPixelColor(LED_COUNT-1, strip.Color(255, 255, 0));
     strip.setPixelColor(LED_COUNT-2, strip.Color(255, 255, 0));
     strip.setPixelColor(LED_COUNT-3, strip.Color(255, 255, 0));
     strip.show();
   }
-  if(currentMillis>=70300 && currentMillis<=77300)//70300-77000 //multiColorWipe
+  if(currentMillis>=73800 && currentMillis<=85300)//70300-77000 //multiColorWipe
     multiColorWipe(millis());
-  if(currentMillis>=77400 && currentMillis<=80000) // clear all
+  if(currentMillis>=85300 && currentMillis<=87700) //77400-80000 clear all
     strip.clear();
-  if(currentMillis>=80500 && currentMillis<=82000)//80500-82000
+  if(currentMillis>=87700 && currentMillis<=89000)//80500-82000
     meteorRainUpFinal(10, 5, true, 40);
-  if(currentMillis>=82000 && currentMillis<=93000){//82000-90000
+  if(currentMillis>=89000 && currentMillis<=98000){//82000-90000
     glowStar(millis());
     SparkleCorners();
-    SparkleHeart();
+    // SparkleHeart();
   }
 ///Sound Sensor reactive to music////
-Serial.println(analogRead(Sound_Pin));
-  if(currentMillis>=93000){//93000
-    if(analogRead(Sound_Pin) >= 513){//digitalRead(Sound_Pin) == 1
-        strip.fill(strip.Color(random(255),random(255),random(255)));
+    Serial.println(analogRead(Sound_Pin));
+  if(currentMillis>=98000){//93000
+    if(analogRead(Sound_Pin) >= 525){//515 || 525    analogRead(Sound_Pin) >= 515
+        strip.fill(strip.Color(random(255),random(255),random(255)),0,36);
         strip.show();
     }else{
         strip.clear();
